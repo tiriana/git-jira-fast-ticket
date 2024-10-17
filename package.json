@@ -9,7 +9,7 @@
     "start": "node dist/index.js",
     "dev": "ts-node-dev src/index.ts",
     "test": "jest",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "bin": {
     "git-jira-fast-ticket": "./index.js"
