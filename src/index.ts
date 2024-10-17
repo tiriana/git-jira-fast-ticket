@@ -6,6 +6,7 @@ import { question } from 'readline-sync';
 import { readFileSync } from 'fs';
 import { questionAndSave } from '@/questionAndSave';
 import { questionEMailAndSave } from '@/questionEMailAndSave';
+import { fetchJiraProjects } from '@/utils/fetchJiraProjects';
 
 const packageJson = JSON.parse(readFileSync('./package.json', 'utf-8'));
 const program = new Command();
@@ -24,7 +25,21 @@ program
     const pat = opts.pat || process.env.JIRA_PAT || fromGitConfig('jira.pat') || questionAndSave('Enter Jira personal access token:', 'jira.pat');
     const url = opts.url || process.env.JIRA_URL || fromGitConfig('jira.url') || questionAndSave('Enter Jira URL:', 'jira.url');
     const email = opts.email || process.env.JIRA_EMAIL || fromGitConfig('jira.email') || questionEMailAndSave('Enter Jira email:', 'jira.email');
-    const project = opts.project || process.env.JIRA_PROJECT || fromGitConfig('jira.project') || question('Enter Jira project ID:') || '';
+
+    let project = opts.project || process.env.JIRA_PROJECT || fromGitConfig('jira.project');
+
+    if (!project) {
+      const allProjects = await fetchJiraProjects(url, pat, email);
+      console.log(
+        `Available Jira projects: [${allProjects
+          .map(project => project.key)
+          .sort((a, b) => a.localeCompare(b))
+          .join(', ')}]`
+      );
+      while (!project) {
+        project = questionAndSave('Enter Project Key:', 'jira.project');
+      }
+    }
 
     const wasTitleEmpty = !title;
     while (!title) {
