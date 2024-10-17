@@ -1,11 +1,12 @@
 import typescriptPlugin from '@typescript-eslint/eslint-plugin';
 import typescriptParser from '@typescript-eslint/parser';
+import prettierPlugin from 'eslint-plugin-prettier';
+import prettierConfig from 'eslint-config-prettier';
 import { Linter } from 'eslint';
 
 /** @type {Linter.FlatConfig[]} */
 const config = [
   {
-    extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended'],
     languageOptions: {
       parser: typescriptParser,
       parserOptions: {
@@ -21,11 +22,17 @@ const config = [
         exports: 'readonly',
       },
     },
+    files: ['**/*.ts'],
     plugins: {
       '@typescript-eslint': typescriptPlugin,
+      prettier: prettierPlugin,
     },
-    files: ['**/*.ts'], // Apply configuration only to TypeScript files
     rules: {
+      ...typescriptPlugin.configs.recommended.rules,
+
+      ...prettierConfig.rules,
+      'prettier/prettier': 'error',
+
       'arrow-body-style': ['error', 'as-needed'],
       'prefer-arrow-callback': 'error',
       'implicit-arrow-linebreak': ['error', 'beside'],

@@ -1,37 +1,39 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { promptForInput } from './utils/promptForInput';
 import { fromGitConfig } from './utils/fromGitConfig';
+import { question } from 'readline-sync';
+import { readFileSync } from 'fs';
+import { questionAndSave } from '@/questionAndSave';
+import { questionEMailAndSave } from '@/questionEMailAndSave';
 
+const packageJson = JSON.parse(readFileSync('./package.json', 'utf-8'));
 const program = new Command();
 
 program
-  .version('1.0.0')
-  .requiredOption('--pat <pat>', 'Jira personal access token', process.env.JIRA_PAT)
-  .option('-u, --url <url>', 'Jira URL', process.env.JIRA_URL)
-  .option('-e, --email <email>', 'User email for Jira', process.env.JIRA_EMAIL)
-  .option('-p, --project <project>', 'Jira project ID', process.env.JIRA_PROJECT)
-  .arguments('<title> [description]')
-  .action(async (title: string, description: string) => {
+  .version(packageJson.version)
+  .option('--pat <pat>', 'Jira personal access token')
+  .option('-u, --url <url>', 'Jira URL')
+  .option('-e, --email <email>', 'User email for Jira')
+  .option('-p, --project <project>', 'Jira project ID')
+  .arguments('[title] [description]')
+  .action(async (title, description) => {
     const opts = program.opts();
 
-    // Handle async fallbacks
-    const pat = opts.pat || (await fromGitConfig('jira.pat')) || (await promptForInput('Enter your Jira PAT:'));
-    const url = opts.url || (await fromGitConfig('jira.url')) || (await promptForInput('Enter your Jira URL:'));
-    const email =
-      opts.email || (await fromGitConfig('jira.email')) || (await fromGitConfig('user.email')) || (await promptForInput('Enter your email for Jira:'));
-    const project = opts.project || (await fromGitConfig('jira.project')) || (await promptForInput('Enter the Jira project ID:'));
+    // Check for required options here instead
+    const pat = opts.pat || process.env.JIRA_PAT || fromGitConfig('jira.pat') || questionAndSave('Enter Jira personal access token:', 'jira.pat');
+    const url = opts.url || process.env.JIRA_URL || fromGitConfig('jira.url') || questionAndSave('Enter Jira URL:', 'jira.url');
+    const email = opts.email || process.env.JIRA_EMAIL || fromGitConfig('jira.email') || questionEMailAndSave('Enter Jira email:', 'jira.email');
+    const project = opts.project || process.env.JIRA_PROJECT || fromGitConfig('jira.project') || question('Enter Jira project ID:') || '';
 
-    if (!title) {
-      console.error('Error: Title is required.');
-      process.exit(1);
+    const wasTitleEmpty = !title;
+    while (!title) {
+      title = question('Enter the title for the Jira ticket:') || '';
     }
 
-    description = description || title;
+    description = wasTitleEmpty ? question('Enter description or leave empty [ENTER]:', { defaultInput: title }) : description || title;
 
-    // Further logic to create Jira ticket using `pat`, `url`, `email`, `project`, `title`, `description`
-    console.log(`Creating Jira ticket with:\nPAT: ${pat}\nURL: ${url}\nEmail: ${email}\nProject: ${project}\nTitle: ${title}\nDescription: ${description}`);
+    console.log({ pat, url, email, project, title, description });
   });
 
 program.parse(process.argv);
