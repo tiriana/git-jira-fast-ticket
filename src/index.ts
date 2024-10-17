@@ -9,6 +9,7 @@ import { questionEMailAndSave } from '@/questionEMailAndSave';
 import { fetchJiraProjects } from '@/utils/fetchJiraProjects';
 import { Version3Client } from 'jira.js';
 import { createJiraTicket } from '@/utils/createJiraTicket';
+import { execSync } from 'child_process';
 
 const packageJson = JSON.parse(readFileSync('./package.json', 'utf-8'));
 const program = new Command();
@@ -19,6 +20,7 @@ program
   .option('-u, --url <url>', 'Jira URL')
   .option('-e, --email <email>', 'User email for Jira')
   .option('-p, --project <project>', 'Jira project ID')
+  .option('-x, --no-checkout', 'Do not checkout to the new branch automatically')
   .arguments('[title] [description]')
   .action(async (title, description) => {
     const opts = program.opts();
@@ -59,7 +61,24 @@ program
 
     description = wasTitleEmpty ? question('Enter description or leave empty [ENTER]:', { defaultInput: title }) : description || title;
 
-    await createJiraTicket(jiraClient, project.toUpperCase(), title, description);
+    const issue = await createJiraTicket(jiraClient, project.toUpperCase(), title, description);
+
+    if (issue) {
+      const issueKey = issue.key;
+      const sanitizedTitle = title
+        .replace(/[^a-zA-Z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .toLowerCase();
+      const branchName = `${issueKey}-${sanitizedTitle}`;
+
+      const checkoutCommand = `git checkout -b "${branchName}"`;
+
+      if (!opts.noCheckout) {
+        execSync(checkoutCommand);
+      } else {
+        console.log(`To create the branch manually, use:\n ${checkoutCommand}`);
+      }
+    }
   });
 
 program.parse(process.argv);
