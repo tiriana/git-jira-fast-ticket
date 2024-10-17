@@ -1,12 +1,19 @@
 {
   "name": "git-jira-fast-ticket",
   "version": "1.0.0",
-  "description": "",
+  "description": "CLI tool for quick Jira ticket creation",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bin": {
+    "git-jira-fast-ticket": "./index.js"
+  },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^12.1.0",
+    "inquirer": "^12.0.0"
+  }
 }
