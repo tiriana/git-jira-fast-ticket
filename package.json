@@ -3,13 +3,18 @@
   "version": "1.0.0",
   "description": "CLI tool for quick Jira ticket creation",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "release": "semantic-release",
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "ts-node-dev src/index.ts",
-    "test": "jest",
-    "prepare": "husky"
+    "test": "jest --config jest.config.ts",
+    "prepare": "husky",
+    "lint:eslint": "eslint .",
+    "lint:eslint:fix": "eslint . --fix",
+    "lint:prettier": "prettier",
+    "lint:prettier:fix": "prettier --write"
   },
   "bin": {
     "git-jira-fast-ticket": "./index.js"
@@ -24,12 +29,19 @@
   "devDependencies": {
     "@commitlint/cli": "^19.5.0",
     "@commitlint/config-conventional": "^19.5.0",
+    "@eslint/eslintrc": "^3.1.0",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/commit-analyzer": "^13.0.0",
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/release-notes-generator": "^14.0.1",
+    "@types/eslint": "^9.6.1",
     "@types/jest": "^29.5.13",
     "@types/node": "^22.7.6",
+    "@typescript-eslint/eslint-plugin": "^8.10.0",
+    "@typescript-eslint/parser": "^8.10.0",
+    "eslint": "^9.12.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
     "husky": "^9.1.6",
     "jest": "^29.7.0",
     "lint-staged": "^15.2.10",
