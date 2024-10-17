@@ -2,13 +2,14 @@
   "name": "git-jira-fast-ticket",
   "version": "1.0.0",
   "description": "CLI tool for quick Jira ticket creation",
-  "main": "src/index.ts",
+  "main": "index.ts",
   "type": "module",
   "scripts": {
     "release": "semantic-release",
     "build": "tsc",
+    "postinstall": "chmod +x dist/index.js",
     "start": "node dist/index.js",
-    "dev": "tsx src/index.ts",
+    "dev": "tsx src/program.ts",
     "test": "jest --config jest.config.ts",
     "prepare": "husky",
     "lint:eslint": "eslint .",
@@ -17,20 +18,18 @@
     "lint:prettier:fix": "prettier --write"
   },
   "bin": {
-    "git-jira-fast-ticket": ".src/index.ts"
+    "git-jira-fast-ticket": "./dist/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@eslint/js": "^9.12.0",
-    "axios": "^1.7.7",
     "commander": "^12.1.0",
-    "inquirer": "^12.0.0",
     "jira.js": "^4.0.2",
-    "node-fetch": "^3.3.2",
     "ora": "^8.1.0",
-    "readline-sync": "^1.4.10"
+    "readline-sync": "^1.4.10",
+    "tsconfig-paths": "^4.2.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.5.0",

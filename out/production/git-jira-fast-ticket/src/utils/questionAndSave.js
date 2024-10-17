@@ -1,7 +1,6 @@
 import { question } from 'readline-sync';
-import { saveIfUserAgrees } from '@/saveIfUserAgrees';
-
-export const questionAndSave = (prompt: string, key: string) => {
+import { saveIfUserAgrees } from '@/utils/saveIfUserAgrees';
+export const questionAndSave = (prompt, key) => {
   const answer = question(prompt);
   if (answer) saveIfUserAgrees(key, answer);
   return answer;

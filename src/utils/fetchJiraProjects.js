@@ -31,15 +31,19 @@ var __awaiter =
     });
   };
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.getOptionValue = void 0;
-const getOptionValue = sources =>
+exports.fetchJiraProjects = void 0;
+const ora_1 = require('ora');
+const fetchJiraProjects = client =>
   __awaiter(void 0, void 0, void 0, function* () {
-    for (const source of sources) {
-      const value = yield source();
-      if (value) {
-        return value;
-      }
+    const spinner = (0, ora_1.default)('Fetching Jira projects...').start();
+    try {
+      const { values: projects } = yield client.projects.searchProjects();
+      spinner.succeed('Jira projects fetched successfully.');
+      return projects;
+    } catch (error) {
+      spinner.fail('Failed to fetch projects from Jira.');
+      console.error(error instanceof Error ? error.message : error);
+      return [];
     }
-    return null;
   });
-exports.getOptionValue = getOptionValue;
+exports.fetchJiraProjects = fetchJiraProjects;
