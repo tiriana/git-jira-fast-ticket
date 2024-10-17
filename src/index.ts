@@ -7,6 +7,8 @@ import { readFileSync } from 'fs';
 import { questionAndSave } from '@/questionAndSave';
 import { questionEMailAndSave } from '@/questionEMailAndSave';
 import { fetchJiraProjects } from '@/utils/fetchJiraProjects';
+import { Version3Client } from 'jira.js';
+import { createJiraTicket } from '@/utils/createJiraTicket';
 
 const packageJson = JSON.parse(readFileSync('./package.json', 'utf-8'));
 const program = new Command();
@@ -21,15 +23,24 @@ program
   .action(async (title, description) => {
     const opts = program.opts();
 
-    // Check for required options here instead
     const pat = opts.pat || process.env.JIRA_PAT || fromGitConfig('jira.pat') || questionAndSave('Enter Jira personal access token:', 'jira.pat');
     const url = opts.url || process.env.JIRA_URL || fromGitConfig('jira.url') || questionAndSave('Enter Jira URL:', 'jira.url');
     const email = opts.email || process.env.JIRA_EMAIL || fromGitConfig('jira.email') || questionEMailAndSave('Enter Jira email:', 'jira.email');
 
     let project = opts.project || process.env.JIRA_PROJECT || fromGitConfig('jira.project');
 
+    const jiraClient = new Version3Client({
+      host: url,
+      authentication: {
+        basic: {
+          email: email,
+          apiToken: pat,
+        },
+      },
+    });
+
     if (!project) {
-      const allProjects = await fetchJiraProjects(url, pat, email);
+      const allProjects = await fetchJiraProjects(jiraClient);
       console.log(
         `Available Jira projects: [${allProjects
           .map(project => project.key)
@@ -37,7 +48,7 @@ program
           .join(', ')}]`
       );
       while (!project) {
-        project = questionAndSave('Enter Project Key:', 'jira.project');
+        project = questionAndSave('Enter Project Key:', 'jira.project').toUpperCase();
       }
     }
 
@@ -48,7 +59,7 @@ program
 
     description = wasTitleEmpty ? question('Enter description or leave empty [ENTER]:', { defaultInput: title }) : description || title;
 
-    console.log({ pat, url, email, project, title, description });
+    await createJiraTicket(jiraClient, project.toUpperCase(), title, description);
   });
 
 program.parse(process.argv);

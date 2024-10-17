@@ -1,17 +1,7 @@
 import { Version3Client } from 'jira.js';
 import ora from 'ora';
 
-export const fetchJiraProjects = async (url: string, pat: string, email: string) => {
-  const client = new Version3Client({
-    host: url,
-    authentication: {
-      basic: {
-        email: email,
-        apiToken: pat,
-      },
-    },
-  });
-
+export const fetchJiraProjects = async (client: Version3Client) => {
   const spinner = ora('Fetching Jira projects...').start();
 
   try {
