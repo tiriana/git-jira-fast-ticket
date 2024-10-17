@@ -1,5 +1,5 @@
-import ora from 'ora';
 import { Version3Client } from 'jira.js';
+import ora from 'ora';
 
 export async function createJiraTicket(jiraClient: Version3Client, project: string, title: string, description: string) {
   const spinner = ora('Creating Jira ticket...').start();

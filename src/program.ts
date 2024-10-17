@@ -1,21 +1,24 @@
 #!/usr/bin/env node
 
-import { Command } from 'commander';
-import { fromGitConfig } from './utils/fromGitConfig';
 import { question } from 'readline-sync';
-import { readFileSync } from 'fs';
-import { questionAndSave } from '@/utils/questionAndSave';
-import { questionEMailAndSave } from '@/utils/questionEMailAndSave';
-import { fetchJiraProjects } from '@/utils/fetchJiraProjects';
 import { Version3Client } from 'jira.js';
-import { createJiraTicket } from '@/utils/createJiraTicket';
 import { execSync } from 'child_process';
+import { Command } from 'commander';
+import { questionEMailAndSave } from '@/utils/questionEMailAndSave';
+import { questionAndSave } from '@/utils/questionAndSave';
+import { fromGitConfig } from '@/utils/fromGitConfig';
+import { fetchJiraProjects } from '@/utils/fetchJiraProjects';
+import { createJiraTicket } from '@/utils/createJiraTicket';
+import { readPackageUpSync } from 'read-package-up';
 
-const packageJson = JSON.parse(readFileSync('./package.json', 'utf-8'));
-const program = new Command();
+export const program = new Command();
+
+const {
+  packageJson: { version },
+} = readPackageUpSync();
 
 program
-  .version(packageJson.version)
+  .version(version)
   .option('--pat <pat>', 'Jira personal access token')
   .option('-u, --url <url>', 'Jira URL')
   .option('-e, --email <email>', 'User email for Jira')

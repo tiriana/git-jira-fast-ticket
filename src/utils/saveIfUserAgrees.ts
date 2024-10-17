@@ -1,5 +1,5 @@
 import { question } from 'readline-sync';
-import { saveToGitConfig } from '@/utils/fromGitConfig';
+import { saveToGitConfig } from '@/utils/saveToGitConfig';
 
 export const saveIfUserAgrees = (key: string, value: string) => {
   const shouldSave = question('Do you want to save this in your local git config? (y/N): ');
