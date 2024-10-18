@@ -2,7 +2,7 @@ name: Publish Package
 
 on:
   release:
-    types: [published]
+    types: [created]
 
 permissions:
   contents: write
@@ -15,9 +15,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
-          node-version: '16'
+          node-version-file: '.nvmrc'
+          cache: 'npm'
           registry-url: 'https://registry.npmjs.org/'
       - run: npm install
       - run: npm run build
