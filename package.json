@@ -7,9 +7,6 @@
   "scripts": {
     "prepare": "chmod +x bin/git-jira-fast-ticket.sh"
   },
-  "devDependencies": {
-    "release-it": "^17.10.0"
-  },
   "github": {
     "release": true,
     "tokenRef": "GITHUB_TOKEN",

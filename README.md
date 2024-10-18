@@ -8,7 +8,7 @@ named after the created ticket.
 To install this tool globally via npm, run the following command:
 
 ```bash
-npm install -g git-jira-fast-ticket.sh
+npm install -g git-jira-fast-ticket
 ```
 
 ## Usage
