@@ -1,3 +1,11 @@
+## [1.0.7](https://github.com/tiriana/git-jira-fast-ticket/compare/v1.0.6...v1.0.7) (2024-10-18)
+
+
+### Bug Fixes
+
+* deps ([a9b04e8](https://github.com/tiriana/git-jira-fast-ticket/commit/a9b04e80fbc1134b2103a925ee9784c12d530974))
+* deps ([#10](https://github.com/tiriana/git-jira-fast-ticket/issues/10)) ([43a7fce](https://github.com/tiriana/git-jira-fast-ticket/commit/43a7fce51dd9968435162361e51edec975da7866))
+
 ## [1.0.6](https://github.com/tiriana/git-jira-fast-ticket/compare/v1.0.5...v1.0.6) (2024-10-18)
 
 
