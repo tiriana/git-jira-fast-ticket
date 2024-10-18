@@ -1,3 +1,9 @@
+## [2.1.3](https://github.com/tiriana/git-jira-fast-ticket/compare/v2.1.2...v2.1.3) (2024-10-18)
+
+### Bug Fixes
+
+* add links to repo ([a66451c](https://github.com/tiriana/git-jira-fast-ticket/commit/a66451cf12836591edc150ba2c8b932202b510c2))
+
 ## [2.1.2](https://github.com/tiriana/git-jira-fast-ticket/compare/v2.1.1...v2.1.2) (2024-10-18)
 
 ### Bug Fixes
