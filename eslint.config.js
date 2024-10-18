@@ -7,7 +7,7 @@ const { Linter } = require('eslint');
 /** @type {Linter.FlatConfig[]} */
 const config = [
   {
-    ignores: ['out/**', 'dist/**'],
+    ignores: ['**/dist/**', '**/out/**'],
     languageOptions: {
       parser: typescriptParser,
       parserOptions: {

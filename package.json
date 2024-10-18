@@ -16,10 +16,10 @@
     "dev": "tsx index.ts",
     "test": "jest --config jest.config.js",
     "prepare": "husky",
-    "lint:eslint": "eslint .",
-    "lint:eslint:fix": "eslint . --fix",
-    "lint:prettier": "prettier",
-    "lint:prettier:fix": "prettier --write"
+    "lint:eslint": "eslint . --ignore-pattern 'dist/**' --ignore-pattern 'out/**'",
+    "lint:eslint:fix": "npm run lint:eslint -- --fix",
+    "lint:prettier": "prettier --check .",
+    "lint:prettier:fix": "prettier --write ."
   },
   "bin": {
     "git-jira-fast-ticket": "./dist/bundle.js"
