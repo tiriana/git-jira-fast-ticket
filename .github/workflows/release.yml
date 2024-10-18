@@ -6,12 +6,12 @@ on:
       - main
 
 jobs:
-  test:
+  release:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
@@ -38,22 +38,6 @@ jobs:
       - name: Run Bats tests
         run: |
           bats test/
-
-  release:
-    runs-on: ubuntu-latest
-    needs: test
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
-        run: npm ci
 
       - name: Run Semantic Release
         env:
