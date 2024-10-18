@@ -1,3 +1,11 @@
+## [1.0.3](https://github.com/tiriana/git-jira-fast-ticket/compare/v1.0.2...v1.0.3) (2024-10-18)
+
+
+### Bug Fixes
+
+* permissions in workflows ([888d271](https://github.com/tiriana/git-jira-fast-ticket/commit/888d271af9c1c703a17591ab8b4a79cab32c4838))
+* permissions in workflows ([#6](https://github.com/tiriana/git-jira-fast-ticket/issues/6)) ([47e60f3](https://github.com/tiriana/git-jira-fast-ticket/commit/47e60f3a84749ca5ed3a825417c89b769b38ff53))
+
 ## [1.0.2](https://github.com/tiriana/git-jira-fast-ticket/compare/v1.0.1...v1.0.2) (2024-10-18)
 
 
