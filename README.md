@@ -22,7 +22,7 @@ Before using the command, ensure the following environment variables are set:
 ### Command:
 
 ```bash
-git-jira-fast-ticket.sh PROJECT_KEY "Title" "Description"
+git jira-fast-ticket PROJECT_KEY "Title" "Description"
 ```
 
 - `PROJECT_KEY`: The Jira project key.
