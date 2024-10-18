@@ -36,6 +36,9 @@ jobs:
       - name: Compile TypeScript
         run: npm run build
 
+      - name: Prepare bundle
+        run: npm run bundle
+
       - name: Run Tests
         run: npm test
 
