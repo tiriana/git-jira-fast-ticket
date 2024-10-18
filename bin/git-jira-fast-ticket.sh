@@ -28,7 +28,6 @@ DESCRIPTION_JSON=$(cat <<EOF
 EOF
 )
 
-# Create the ticket in Jira
 TICKET_RESPONSE=$(curl -s -X POST -H "Content-Type: application/json" \
   -u "$JIRA_EMAIL:$JIRA_PAT" \
   -d "{\"fields\": {\"project\": {\"key\": \"$PROJECT_KEY\"}, \"summary\": \"$TITLE\", \"description\": $DESCRIPTION_JSON, \"issuetype\": {\"name\": \"Task\"}}}" \
@@ -48,6 +47,5 @@ echo -e "Jira ticket created: $TICKET_ID - \033[1;34m$TICKET_URL\033[0m"
 SANITIZED_TITLE=$(echo "$TITLE" | sed -E 's/[^a-zA-Z0-9]+/-/g; s/^-*|-*$//g')
 BRANCH_NAME="${TICKET_ID}-${SANITIZED_TITLE}"
 
-# Create branch from the current local branch
 git checkout -b "$BRANCH_NAME"
 
