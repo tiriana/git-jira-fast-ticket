@@ -12,6 +12,13 @@
     "email": "radomir.wojtera@gmail.com",
     "url": "https://github.com/tiriana/git-jira-fast-ticket"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tiriana/git-jira-fast-ticket"
+  },
+  "bugs": {
+    "url": "https://github.com/tiriana/git-jira-fast-ticket/issues"
+  },
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
