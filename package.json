@@ -7,10 +7,16 @@
   "scripts": {
     "prepare": "chmod +x bin/git-jira-fast-ticket.sh"
   },
-  "github": {
-    "release": true,
-    "tokenRef": "GITHUB_TOKEN",
-    "releaseName": "Release ${version}",
-    "releaseNotes": "See CHANGELOG for details"
+  "author": {
+    "name": "Radomir Wojtera",
+    "email": "radomir.wojtera@gmail.com",
+    "url": "https://github.com/tiriana/git-jira-fast-ticket"
+  },
+  "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^11.0.0",
+    "@semantic-release/npm": "^12.0.1",
+    "semantic-release": "^24.1.2"
   }
 }
