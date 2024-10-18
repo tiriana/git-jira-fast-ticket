@@ -1,6 +1,6 @@
 {
   "name": "git-jira-fast-ticket",
-  "version": "1.0.7",
+  "version": "2.0.0",
   "bin": {
     "git-jira-fast-ticket": "./bin/git-jira-fast-ticket.sh"
   },
