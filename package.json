@@ -9,8 +9,9 @@
   ],
   "scripts": {
     "release": "semantic-release",
-    "build": "tsc && chmod +x dist/bundle.js",
+    "build": "tsc && npm run bundle && chmod +x dist/bundle.js",
     "postinstall": "npm run build",
+    "bundle": "esbuild index.ts --bundle --platform=node --outfile=dist/bundle.js",
     "start": "node dist/bundle.js",
     "dev": "tsx index.ts",
     "test": "jest --config jest.config.ts",
@@ -18,8 +19,7 @@
     "lint:eslint": "eslint .",
     "lint:eslint:fix": "eslint . --fix",
     "lint:prettier": "prettier",
-    "lint:prettier:fix": "prettier --write",
-    "bundle": "esbuild index.ts --bundle --platform=node --outfile=dist/bundle.js"
+    "lint:prettier:fix": "prettier --write"
   },
   "bin": {
     "git-jira-fast-ticket": "./dist/bundle.js"
