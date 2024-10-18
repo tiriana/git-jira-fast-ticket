@@ -1,3 +1,11 @@
+## [1.0.6](https://github.com/tiriana/git-jira-fast-ticket/compare/v1.0.5...v1.0.6) (2024-10-18)
+
+
+### Bug Fixes
+
+* i forgot about the plugin ([377d9ee](https://github.com/tiriana/git-jira-fast-ticket/commit/377d9eeb17dc35cd3cba6123bb3d4ce73b2a670e))
+* i forgot about the plugin ([#9](https://github.com/tiriana/git-jira-fast-ticket/issues/9)) ([a3db59b](https://github.com/tiriana/git-jira-fast-ticket/commit/a3db59b0632237d7c0075795ae4b1c2353ae70d8))
+
 ## [1.0.5](https://github.com/tiriana/git-jira-fast-ticket/compare/v1.0.4...v1.0.5) (2024-10-18)
 
 
