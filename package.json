@@ -15,7 +15,7 @@
     "start": "node dist/bundle.js",
     "dev": "tsx index.ts",
     "test": "jest --config jest.config.js",
-    "prepare": "husky",
+    "prepare": "husky && npm run build",
     "lint:eslint": "eslint . --ignore-pattern 'dist/**' --ignore-pattern 'out/**'",
     "lint:eslint:fix": "npm run lint:eslint -- --fix",
     "lint:prettier": "prettier --check .",
@@ -35,7 +35,8 @@
     "ora": "^8.1.0",
     "read-package-up": "^11.0.0",
     "readline-sync": "^1.4.10",
-    "tsconfig-paths": "^4.2.0"
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.6.3"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.5.0",
@@ -64,8 +65,7 @@
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
-    "tsx": "^4.19.1",
-    "typescript": "^5.6.3"
+    "tsx": "^4.19.1"
   },
   "lint-staged": {
     "*": [
