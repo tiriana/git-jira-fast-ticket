@@ -1,3 +1,9 @@
+## [2.1.2](https://github.com/tiriana/git-jira-fast-ticket/compare/v2.1.1...v2.1.2) (2024-10-18)
+
+### Bug Fixes
+
+* one job in workflow ([1e0056c](https://github.com/tiriana/git-jira-fast-ticket/commit/1e0056c974ae071e34c4613aa1009e759697b622))
+
 ## [2.1.1](https://github.com/tiriana/git-jira-fast-ticket/compare/v2.1.0...v2.1.1) (2024-10-18)
 
 ### Bug Fixes
