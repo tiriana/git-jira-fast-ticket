@@ -9,8 +9,8 @@
   ],
   "scripts": {
     "release": "semantic-release",
-    "build": "tsc",
-    "postinstall": "chmod +x dist/bundle.js",
+    "build": "tsc && chmod +x dist/bundle.js",
+    "postinstall": "npm run build",
     "start": "node dist/bundle.js",
     "dev": "tsx index.ts",
     "test": "jest --config jest.config.ts",
