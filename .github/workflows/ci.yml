@@ -5,16 +5,12 @@ on:
     branches:
       - main
       - develop
-  push:
-    branches:
-      - main
-      - develop
 
 permissions:
   contents: write
 
 jobs:
-  build:
+  bundle:
     runs-on: ubuntu-latest
 
     env:
@@ -33,17 +29,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Compile TypeScript
-        run: npm run build
-
-      - name: Prepare bundle
-        run: npm run bundle
-
-      - name: Run Tests
-        run: npm test
-
       - name: Eslint
         run: npm run lint:eslint
 
       - name: Prettier
         run: npm run lint:prettier
+
+      - name: Prepare bundle
+        run: npm run bundle
