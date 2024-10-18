@@ -1,3 +1,11 @@
+## [1.0.5](https://github.com/tiriana/git-jira-fast-ticket/compare/v1.0.4...v1.0.5) (2024-10-18)
+
+
+### Bug Fixes
+
+* publish as part of release ([c9a8356](https://github.com/tiriana/git-jira-fast-ticket/commit/c9a83566bb356bac79a2fc392dc5e8969fb3c458))
+* publish as part of release ([#8](https://github.com/tiriana/git-jira-fast-ticket/issues/8)) ([5bc00fe](https://github.com/tiriana/git-jira-fast-ticket/commit/5bc00fe5794db3bc31a35592819fe9dbc4f0f9b0))
+
 ## [1.0.4](https://github.com/tiriana/git-jira-fast-ticket/compare/v1.0.3...v1.0.4) (2024-10-18)
 
 
