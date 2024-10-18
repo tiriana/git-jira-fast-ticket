@@ -9,5 +9,11 @@
   },
   "devDependencies": {
     "release-it": "^17.10.0"
+  },
+  "github": {
+    "release": true,
+    "tokenRef": "GITHUB_TOKEN",
+    "releaseName": "Release ${version}",
+    "releaseNotes": "See CHANGELOG for details"
   }
 }
