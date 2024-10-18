@@ -22,9 +22,7 @@ jobs:
         run: npm ci
 
       - name: Install Bats
-        run: |
-          apt-get update
-          apt-get install -y bats
+        uses: ztombol/bats-setup-action@v1
 
       - name: Initialize submodules
         run: |
@@ -41,7 +39,7 @@ jobs:
 
   release:
     runs-on: ubuntu-latest
-    needs: test  # This ensures release waits for the test job to complete
+    needs: test
 
     steps:
       - name: Checkout code
