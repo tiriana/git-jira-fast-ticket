@@ -1,14 +1,11 @@
 {
   "name": "git-jira-fast-ticket",
-  "version": "1.0.7",
+  "version": "2.0.1",
   "bin": {
     "git-jira-fast-ticket": "./bin/git-jira-fast-ticket.sh"
   },
   "scripts": {
     "prepare": "chmod +x bin/git-jira-fast-ticket.sh"
-  },
-  "devDependencies": {
-    "release-it": "^17.10.0"
   },
   "github": {
     "release": true,
