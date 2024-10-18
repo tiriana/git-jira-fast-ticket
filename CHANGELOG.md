@@ -1,3 +1,9 @@
+## [2.1.4](https://github.com/tiriana/git-jira-fast-ticket/compare/v2.1.3...v2.1.4) (2024-10-18)
+
+### Bug Fixes
+
+* adds version and help option ([239193a](https://github.com/tiriana/git-jira-fast-ticket/commit/239193a344bb1fe08978122682defd894d461190))
+
 ## [2.1.3](https://github.com/tiriana/git-jira-fast-ticket/compare/v2.1.2...v2.1.3) (2024-10-18)
 
 ### Bug Fixes
