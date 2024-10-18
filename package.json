@@ -1,6 +1,6 @@
 {
   "name": "git-jira-fast-ticket",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "CLI tool for quick Jira ticket creation",
   "main": "dist/index.js",
   "type": "commonjs",
