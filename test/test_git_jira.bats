@@ -27,3 +27,15 @@ setup() {
   git checkout main
   git branch -D TEST-123-Test-Title
 }
+
+@test "should display the version" {
+  run ./bin/git-jira-fast-ticket.sh --version
+  [ "$status" -eq 0 ]
+  assert [ -n "$output" ]
+}
+
+@test "should display the help" {
+  run ./bin/git-jira-fast-ticket.sh --help
+  [ "$status" -eq 0 ]
+  assert [ -n "$output" ]
+}

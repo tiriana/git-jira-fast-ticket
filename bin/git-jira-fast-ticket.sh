@@ -1,11 +1,40 @@
 #!/bin/bash
 
 NO_CHECKOUT=false
+VERSION=false
+SHOW_HELP=false
 
+# Extract version from package.json
+VERSION_NUMBER=$(grep '"version":' package.json | sed -E 's/[^0-9.]//g')
+
+# Help message
+show_help() {
+  echo "Usage: git-jira <PROJECT_KEY> <TITLE> [DESCRIPTION] [OPTIONS]"
+  echo
+  echo "Options:"
+  echo "  -x, --no-checkout     Skip branch creation and checkout."
+  echo "  -v, --version         Show version information."
+  echo "  -h, --help            Show this help message."
+  echo
+  echo "Environment variables:"
+  echo "  JIRA_URL              The Jira base URL."
+  echo "  JIRA_EMAIL            Your Jira email."
+  echo "  JIRA_PAT              Your Jira Personal Access Token."
+}
+
+# Parse arguments
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -x|--no-checkout)
       NO_CHECKOUT=true
+      shift
+      ;;
+    -v|--version)
+      VERSION=true
+      shift
+      ;;
+    -h|--help)
+      SHOW_HELP=true
       shift
       ;;
     *)
@@ -14,8 +43,27 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [[ -z "$JIRA_URL" || -z "$JIRA_EMAIL" || -z "$JIRA_PAT" || $# -lt 2 ]]; then
-  echo "Please set the JIRA_URL, JIRA_EMAIL, and JIRA_PAT environment variables, and ensure correct usage: git-jira <PROJECT_KEY> <TITLE> [DESCRIPTION] [--no-checkout | -x]"
+# If help flag is passed, show help and exit
+if [ "$SHOW_HELP" = true ]; then
+  show_help
+  exit 0
+fi
+
+# If version flag is passed, show version and exit
+if [ "$VERSION" = true ]; then
+  echo "git-jira-fast-ticket version $VERSION_NUMBER"
+  exit 0
+fi
+
+# Check for required environment variables
+if [[ -z "$JIRA_URL" || -z "$JIRA_EMAIL" || -z "$JIRA_PAT" ]]; then
+  echo "Please set the JIRA_URL, JIRA_EMAIL, and JIRA_PAT environment variables."
+  exit 1
+fi
+
+# Check if sufficient arguments are provided
+if [[ $# -lt 2 ]]; then
+  echo "Usage: git-jira <PROJECT_KEY> <TITLE> [DESCRIPTION] [--no-checkout | -x]"
   exit 1
 fi
 
