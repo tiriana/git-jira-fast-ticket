@@ -1,8 +1,8 @@
-import typescriptPlugin from '@typescript-eslint/eslint-plugin';
-import typescriptParser from '@typescript-eslint/parser';
-import prettierPlugin from 'eslint-plugin-prettier';
-import prettierConfig from 'eslint-config-prettier';
-import { Linter } from 'eslint';
+const typescriptPlugin = require('@typescript-eslint/eslint-plugin');
+const typescriptParser = require('@typescript-eslint/parser');
+const prettierPlugin = require('eslint-plugin-prettier');
+const prettierConfig = require('eslint-config-prettier');
+const { Linter } = require('eslint');
 
 /** @type {Linter.FlatConfig[]} */
 const config = [
@@ -29,10 +29,8 @@ const config = [
     },
     rules: {
       ...typescriptPlugin.configs.recommended.rules,
-
       ...prettierConfig.rules,
       'prettier/prettier': 'error',
-
       'arrow-body-style': ['error', 'as-needed'],
       'prefer-arrow-callback': 'error',
       'implicit-arrow-linebreak': ['error', 'beside'],
@@ -43,4 +41,4 @@ const config = [
   },
 ];
 
-export default config;
+module.exports = config;
