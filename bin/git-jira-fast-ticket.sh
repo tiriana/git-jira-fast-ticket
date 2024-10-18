@@ -1,7 +1,21 @@
 #!/bin/bash
 
+NO_CHECKOUT=false
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -x|--no-checkout)
+      NO_CHECKOUT=true
+      shift
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
 if [[ -z "$JIRA_URL" || -z "$JIRA_EMAIL" || -z "$JIRA_PAT" || $# -lt 2 ]]; then
-  echo "Please set the JIRA_URL, JIRA_EMAIL, and JIRA_PAT environment variables, and ensure correct usage: git-jira <PROJECT_KEY> <TITLE> [DESCRIPTION]"
+  echo "Please set the JIRA_URL, JIRA_EMAIL, and JIRA_PAT environment variables, and ensure correct usage: git-jira <PROJECT_KEY> <TITLE> [DESCRIPTION] [--no-checkout | -x]"
   exit 1
 fi
 
@@ -47,5 +61,8 @@ echo -e "Jira ticket created: $TICKET_ID - \033[1;34m$TICKET_URL\033[0m"
 SANITIZED_TITLE=$(echo "$TITLE" | sed -E 's/[^a-zA-Z0-9]+/-/g; s/^-*|-*$//g')
 BRANCH_NAME="${TICKET_ID}-${SANITIZED_TITLE}"
 
-git checkout -b "$BRANCH_NAME"
-
+if [ "$NO_CHECKOUT" = false ]; then
+  git checkout -b "$BRANCH_NAME"
+else
+  echo "Branch creation and checkout skipped. You can manually create the branch: git checkout -b \"$BRANCH_NAME\""
+fi
