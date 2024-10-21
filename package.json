@@ -21,6 +21,9 @@
   "bin": {
     "git-jira-fast-ticket": "./bin/git-jira-fast-ticket.sh"
   },
+  "files": [
+    "bin/git-jira-fast-ticket.js"
+  ],
   "scripts": {
     "prepare": "chmod +x bin/git-jira-fast-ticket.sh"
   },
