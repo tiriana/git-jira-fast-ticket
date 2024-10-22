@@ -19,10 +19,10 @@
     "macos"
   ],
   "bin": {
-    "git-jira-fast-ticket": "./bin/git-jira-fast-ticket.sh"
+    "git-jira-fast-ticket": "./bin/git-jira-fast-ticket.js"
   },
   "scripts": {
-    "prepare": "chmod +x bin/git-jira-fast-ticket.sh",
+    "prepare": "chmod +x bin/git-jira-fast-ticket.js",
     "test": "mocha ./tests.js --require choma"
   },
   "author": {
@@ -43,6 +43,7 @@
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^11.0.0",
     "@semantic-release/npm": "^12.0.1",
+    "@types/shelljs": "^0.8.15",
     "bash-minifier": "^0.1.3",
     "choma": "^1.2.1",
     "conventional-changelog-conventionalcommits": "^8.0.0",
@@ -51,8 +52,5 @@
     "shelljs": "^0.8.5",
     "sinon": "^19.0.2"
   },
-  "license": "MIT",
-  "os": [
-    "!win32"
-  ]
+  "license": "MIT"
 }
