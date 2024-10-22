@@ -52,5 +52,8 @@
     "shelljs": "^0.8.5",
     "sinon": "^19.0.2"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "execa": "^9.4.1"
+  }
 }
