@@ -1,3 +1,9 @@
+## [2.1.6](https://github.com/tiriana/git-jira-fast-ticket/compare/v2.1.5...v2.1.6) (2024-10-22)
+
+### Bug Fixes
+
+* minified script ([7d1f94a](https://github.com/tiriana/git-jira-fast-ticket/commit/7d1f94a7ea4e660e7191d2f09212acddd2794817))
+
 ## [2.1.5](https://github.com/tiriana/git-jira-fast-ticket/compare/v2.1.4...v2.1.5) (2024-10-22)
 
 ### Bug Fixes
