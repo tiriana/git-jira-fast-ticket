@@ -39,6 +39,10 @@ jobs:
         run: |
           bats test/
 
+      - name: Minify bash scripts
+        run: |
+          npx bash-minifier ./bin/git-jira-fast-ticket.sh > ./bin/git-jira-fast-ticket.min.sh
+
       - name: Run Semantic Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
