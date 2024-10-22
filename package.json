@@ -22,7 +22,8 @@
     "git-jira-fast-ticket": "./bin/git-jira-fast-ticket.sh"
   },
   "scripts": {
-    "prepare": "chmod +x bin/git-jira-fast-ticket.sh && chmod +x bin/git-jira-fast-ticket.min.sh"
+    "prepare": "chmod +x bin/git-jira-fast-ticket.sh && chmod +x bin/git-jira-fast-ticket.min.sh",
+    "test": "mocha ./tests.js --require choma"
   },
   "author": {
     "name": "Radomir Wojtera",
@@ -43,9 +44,12 @@
     "@semantic-release/github": "^11.0.0",
     "@semantic-release/npm": "^12.0.1",
     "bash-minifier": "^0.1.3",
+    "choma": "^1.2.1",
     "conventional-changelog-conventionalcommits": "^8.0.0",
-    "express": "^4.18.2",
-    "semantic-release": "^24.1.2"
+    "mocha": "^10.7.3",
+    "semantic-release": "^24.1.2",
+    "shelljs": "^0.8.5",
+    "sinon": "^19.0.2"
   },
   "license": "MIT",
   "os": [
