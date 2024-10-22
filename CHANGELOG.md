@@ -1,3 +1,10 @@
+## [2.1.5](https://github.com/tiriana/git-jira-fast-ticket/compare/v2.1.4...v2.1.5) (2024-10-22)
+
+### Bug Fixes
+
+* publish only update bin file ([c358223](https://github.com/tiriana/git-jira-fast-ticket/commit/c358223741c061aa467c5798bf9876e29991360b))
+* update package.json ([57ef400](https://github.com/tiriana/git-jira-fast-ticket/commit/57ef40064a6c4246cf55be8faa97bfa5915abb56))
+
 ## [2.1.4](https://github.com/tiriana/git-jira-fast-ticket/compare/v2.1.3...v2.1.4) (2024-10-18)
 
 ### Bug Fixes
