@@ -22,7 +22,7 @@
     "git-jira-fast-ticket": "./bin/git-jira-fast-ticket.sh"
   },
   "scripts": {
-    "prepare": "chmod +x bin/git-jira-fast-ticket.sh && chmod +x bin/git-jira-fast-ticket.min.sh",
+    "prepare": "chmod +x bin/git-jira-fast-ticket.sh",
     "test": "mocha ./tests.js --require choma"
   },
   "author": {
