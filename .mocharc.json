@@ -1,0 +1,11 @@
+{
+  "extension": [
+    "js"
+  ],
+  "spec": "tests.js",
+  "package": "./package.json",
+  "require": [],
+  "recursive": true,
+  "reporter": "spec",
+  "timeout": 5000
+}
