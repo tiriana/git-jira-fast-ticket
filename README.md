@@ -1,5 +1,7 @@
 # git-jira-fast-ticket
 
+[![CI and Release](https://github.com/tiriana/git-jira-fast-ticket/actions/workflows/release.yml/badge.svg)](https://github.com/tiriana/git-jira-fast-ticket/actions/workflows/release.yml)
+
 `git-jira-fast-ticket` is a CLI tool that allows you to create Jira tickets and automatically switch to a new branch
 named after the created ticket.
 
