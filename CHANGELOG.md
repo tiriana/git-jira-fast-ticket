@@ -1,3 +1,9 @@
+## [2.1.7](https://github.com/tiriana/git-jira-fast-ticket/compare/v2.1.6...v2.1.7) (2025-03-13)
+
+### Bug Fixes
+
+* **ci:** use node version from nvmrc ([0194d07](https://github.com/tiriana/git-jira-fast-ticket/commit/0194d07bc4c5d1a6d57953778d4002cb17718894))
+
 ## [2.1.6](https://github.com/tiriana/git-jira-fast-ticket/compare/v2.1.5...v2.1.6) (2024-10-22)
 
 ### Bug Fixes

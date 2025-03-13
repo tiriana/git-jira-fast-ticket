@@ -1,6 +1,6 @@
 {
   "name": "git-jira-fast-ticket",
-  "version": "2.1.6",
+  "version": "2.1.7",
   "description": "Streamline your workflow with this CLI tool that creates Jira tickets and automatically switches to a new Git branch named after the ticket. Perfect for developers using Git and Jira for project management on Unix-like systems.",
   "keywords": [
     "jira",
