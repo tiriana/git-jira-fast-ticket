@@ -1,3 +1,4 @@
+import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { branchName, helpText, parseArgs, sanitizeBranchTitle } from '../src/cli.js';

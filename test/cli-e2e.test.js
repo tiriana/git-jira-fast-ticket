@@ -1,3 +1,4 @@
+import { after, before, beforeEach, describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
@@ -18,9 +19,7 @@ function run(command, args, { cwd, env }) {
   });
 }
 
-describe('git-jira-fast-ticket CLI (end to end)', function () {
-  this.timeout(20000);
-
+describe('git-jira-fast-ticket CLI (end to end)', () => {
   let root;
   let home;
   let configHome;
