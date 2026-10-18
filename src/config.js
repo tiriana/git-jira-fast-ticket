@@ -99,7 +99,7 @@ async function runGitSafe(runGit, args, options) {
   }
 }
 
-function defaultRunGit(args, { cwd, env } = {}) {
+export function defaultRunGit(args, { cwd, env } = {}) {
   return new Promise((resolveResult) => {
     execFile('git', args, { cwd, env }, (error, stdout, stderr) => {
       resolveResult({ ok: !error, stdout: stdout ?? '', stderr: stderr ?? '' });

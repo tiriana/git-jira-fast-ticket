@@ -11,11 +11,14 @@ import http from 'node:http';
 const entry = fileURLToPath(new URL('../bin/git-jira-fast-ticket.js', import.meta.url));
 const pkg = createRequire(import.meta.url)('../package.json');
 
-function run(command, args, { cwd, env }) {
+function run(command, args, { cwd, env, input } = {}) {
   return new Promise((resolve) => {
-    execFile(command, args, { cwd, env }, (error, stdout, stderr) => {
+    const child = execFile(command, args, { cwd, env }, (error, stdout, stderr) => {
       resolve({ code: error ? error.code ?? 1 : 0, stdout, stderr });
     });
+    if (input !== undefined) {
+      child.stdin.end(input);
+    }
   });
 }
 
@@ -120,7 +123,10 @@ describe('git-jira-fast-ticket CLI (end to end)', () => {
     const result = await run('node', [entry, '--help'], { cwd: repo, env: env() });
 
     assert.equal(result.code, 0, result.stderr);
-    assert.match(result.stdout, /Usage: git-jira <PROJECT_KEY> <TITLE> \[DESCRIPTION\] \[OPTIONS\]/);
+    assert.match(
+      result.stdout,
+      /Usage: git-jira-fast-ticket <PROJECT_KEY> <TITLE> \[DESCRIPTION\] \[OPTIONS\]/,
+    );
   });
 
   it('fails when required configuration is missing everywhere', async () => {
@@ -140,6 +146,65 @@ describe('git-jira-fast-ticket CLI (end to end)', () => {
     assert.match(result.stderr, /git config --global jira-fast-ticket\.url <value>/);
     assert.match(result.stderr, /git config --global jira-fast-ticket\.email <value>/);
     assert.match(result.stderr, /git config --global jira-fast-ticket\.token <value>/);
+  });
+
+  it('does not start the wizard when stdin is not a TTY', async () => {
+    const repo = await makeRepo();
+    const incomplete = env();
+    delete incomplete.JIRA_URL;
+    delete incomplete.JIRA_EMAIL;
+    delete incomplete.JIRA_PAT;
+
+    const result = await run('node', [entry, 'ABC', 'A title'], { cwd: repo, env: incomplete });
+
+    assert.notEqual(result.code, 0);
+    assert.match(result.stderr, /Missing required configuration:/);
+    assert.ok(!result.stdout.includes('Jira configuration'), result.stdout);
+  });
+
+  it('saves configuration through the setup command and later uses it', async () => {
+    const repo = await makeRepo();
+    const setupHome = await mkdtemp(join(root, 'setup-home-'));
+    const setupEnv = {
+      HOME: setupHome,
+      GIT_CONFIG_NOSYSTEM: '1',
+      PATH: process.env.PATH,
+    };
+
+    const setup = await run('node', [entry, 'setup'], {
+      cwd: repo,
+      env: setupEnv,
+      input: `${jiraUrl}\ndev@example.com\nsecret-pat\n\n`,
+    });
+
+    assert.equal(setup.code, 0, setup.stderr);
+    assert.ok(!setup.stdout.includes('secret-pat'), setup.stdout);
+
+    const globalUrl = await run('git', ['config', '--global', '--get', 'jira-fast-ticket.url'], {
+      cwd: repo,
+      env: setupEnv,
+    });
+    assert.equal(globalUrl.stdout.trim(), jiraUrl);
+
+    const globalEmail = await run('git', ['config', '--global', '--get', 'jira-fast-ticket.email'], {
+      cwd: repo,
+      env: setupEnv,
+    });
+    assert.equal(globalEmail.stdout.trim(), 'dev@example.com');
+
+    const localToken = await run('git', ['config', '--local', '--get', 'jira-fast-ticket.token'], {
+      cwd: repo,
+      env: setupEnv,
+    });
+    assert.equal(localToken.stdout.trim(), 'secret-pat');
+
+    const create = await run('node', [entry, 'ABC', 'Setup branch'], { cwd: repo, env: setupEnv });
+
+    assert.equal(create.code, 0, create.stderr);
+    assert.match(create.stdout, /Jira ticket created: ABC-123/);
+
+    const current = (await git(['rev-parse', '--abbrev-ref', 'HEAD'], repo)).stdout.trim();
+    assert.equal(current, 'ABC-123-Setup-branch');
   });
 
   it('reads Jira credentials from the repository git config', async () => {

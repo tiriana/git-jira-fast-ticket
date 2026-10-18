@@ -9,6 +9,7 @@ describe('parseArgs', () => {
       help: false,
       version: false,
       noCheckout: true,
+      configure: false,
       positionals: ['PROJ', 'A title'],
     });
   });
@@ -18,6 +19,7 @@ describe('parseArgs', () => {
       help: false,
       version: false,
       noCheckout: true,
+      configure: false,
       positionals: ['PROJ', 'A title'],
     });
   });
@@ -27,6 +29,7 @@ describe('parseArgs', () => {
       help: true,
       version: false,
       noCheckout: false,
+      configure: false,
       positionals: ['PROJ', 'A title', 'A description'],
     });
   });
@@ -36,6 +39,7 @@ describe('parseArgs', () => {
       help: true,
       version: false,
       noCheckout: false,
+      configure: false,
       positionals: ['--version', '-x'],
     });
   });
@@ -45,6 +49,7 @@ describe('parseArgs', () => {
       help: false,
       version: false,
       noCheckout: false,
+      configure: false,
       positionals: ['--unknown', 'PROJ'],
     });
   });
@@ -54,7 +59,18 @@ describe('parseArgs', () => {
       help: false,
       version: true,
       noCheckout: true,
+      configure: false,
       positionals: ['PROJ', 'A title'],
+    });
+  });
+
+  it('recognizes --configure without treating it as positional', () => {
+    assert.deepEqual(parseArgs(['--configure']), {
+      help: false,
+      version: false,
+      noCheckout: false,
+      configure: true,
+      positionals: [],
     });
   });
 });
@@ -93,14 +109,35 @@ describe('branchName', () => {
 });
 
 describe('helpText', () => {
-  it('contains the usage line', () => {
-    assert.match(helpText(), /Usage: git-jira <PROJECT_KEY> <TITLE> \[DESCRIPTION\] \[OPTIONS\]/);
+  const config = {
+    url: 'https://example.atlassian.net',
+    email: 'dev@example.com',
+    pat: 'super-secret-pat',
+    sources: { JIRA_URL: 'env', JIRA_EMAIL: 'local', JIRA_PAT: 'global' },
+  };
+
+  it('names the command users actually type', () => {
+    assert.match(
+      helpText(config),
+      /Usage: git-jira-fast-ticket <PROJECT_KEY> <TITLE> \[DESCRIPTION\] \[OPTIONS\]/,
+    );
   });
 
   it('lists the environment variables', () => {
-    const text = helpText();
+    const text = helpText(config);
     assert.match(text, /JIRA_URL/);
     assert.match(text, /JIRA_EMAIL/);
     assert.match(text, /JIRA_PAT/);
+  });
+
+  it('shows per-key configuration status', () => {
+    const text = helpText(config);
+    assert.match(text, /JIRA_URL set \(environment\)/);
+    assert.match(text, /JIRA_EMAIL set \(git config, this repository\)/);
+    assert.match(text, /JIRA_PAT set \(git config, all repositories\)/);
+  });
+
+  it('never prints the PAT value', () => {
+    assert.ok(!helpText(config).includes('super-secret-pat'));
   });
 });

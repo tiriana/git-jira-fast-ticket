@@ -2,14 +2,15 @@ import { execFile } from 'node:child_process';
 
 import { formatMissing, missingRequired, resolveConfig } from './config.js';
 import { createIssue, JiraError, normalizeBaseUrl } from './jira.js';
+import { configStatus, createPrompt, runWizard } from './setup.js';
 import { getVersion } from './version.js';
 
 const USAGE_MESSAGE =
-  'Usage: git-jira <PROJECT_KEY> <TITLE> [DESCRIPTION] [--no-checkout | -x]';
+  'Usage: git-jira-fast-ticket <PROJECT_KEY> <TITLE> [DESCRIPTION] [--no-checkout | -x]';
 const ISSUE_TYPE = 'Task';
 
 export function parseArgs(argv) {
-  const result = { help: false, version: false, noCheckout: false, positionals: [] };
+  const result = { help: false, version: false, noCheckout: false, configure: false, positionals: [] };
   let optionsEnded = false;
 
   for (const arg of argv) {
@@ -34,6 +35,9 @@ export function parseArgs(argv) {
       case '--no-checkout':
         result.noCheckout = true;
         break;
+      case '--configure':
+        result.configure = true;
+        break;
       default:
         result.positionals.push(arg);
     }
@@ -50,19 +54,26 @@ export function branchName(key, title) {
   return `${key}-${sanitizeBranchTitle(title)}`;
 }
 
-export function helpText() {
+export function helpText(config) {
   return [
-    'Usage: git-jira <PROJECT_KEY> <TITLE> [DESCRIPTION] [OPTIONS]',
+    'Usage: git-jira-fast-ticket <PROJECT_KEY> <TITLE> [DESCRIPTION] [OPTIONS]',
     '',
     'Options:',
     '  -x, --no-checkout     Skip branch creation and checkout.',
     '  -v, --version         Show version information.',
     '  -h, --help            Show this help message.',
+    '  --configure           Set up Jira credentials interactively.',
     '',
     'Environment variables:',
     '  JIRA_URL              The Jira base URL.',
     '  JIRA_EMAIL            Your Jira email.',
     '  JIRA_PAT              Your Jira Personal Access Token.',
+    '',
+    'Configuration:',
+    ...configStatus(config).map((line) => `  ${line}`),
+    '',
+    'Set a value with: git config --global jira-fast-ticket.<url|email|token> <value>',
+    'Run "git-jira-fast-ticket setup" for a guided setup.',
     '',
   ].join('\n');
 }
@@ -71,17 +82,20 @@ export async function main(argv, deps = {}) {
   const {
     env = process.env,
     cwd = process.cwd(),
+    stdin = process.stdin,
     fetchImpl = globalThis.fetch,
     execGit = defaultExecGit,
     runGit,
+    ask,
     stdout = write(process.stdout),
     stderr = write(process.stderr),
   } = deps;
 
-  const { help, version, noCheckout, positionals } = parseArgs(argv);
+  const { help, version, noCheckout, configure, positionals } = parseArgs(argv);
+  const config = await resolveConfig({ env, cwd, runGit });
 
   if (help) {
-    stdout(helpText());
+    stdout(helpText(config));
     return 0;
   }
 
@@ -90,19 +104,36 @@ export async function main(argv, deps = {}) {
     return 0;
   }
 
-  const config = await resolveConfig({ env, cwd, runGit });
-  const missing = missingRequired(config);
-  if (missing.length > 0) {
-    stderr(`${formatMissing(missing)}\n`);
-    return 1;
-  }
+  const prompt = ask ?? createPrompt({ input: stdin, output: process.stdout });
+  const existing = { JIRA_URL: config.url, JIRA_EMAIL: config.email, JIRA_PAT: config.pat };
 
-  const { url: baseUrl, email, pat } = config;
+  if (isSetup(configure, positionals)) {
+    return runSetup({ existing, prompt, stdout, stderr, cwd, env, runGit });
+  }
 
   if (positionals.length < 2) {
     stderr(`${USAGE_MESSAGE}\n`);
     return 1;
   }
+
+  let resolved = config;
+  if (missingRequired(resolved).length > 0 && stdin.isTTY && !env.CI) {
+    try {
+      await runWizard({ existing, ask: prompt, output: stdout, cwd, env, runGit });
+      resolved = await resolveConfig({ env, cwd, runGit });
+    } catch (error) {
+      stderr(`${error instanceof Error ? error.message : String(error)}\n`);
+      return 1;
+    }
+  }
+
+  const missing = missingRequired(resolved);
+  if (missing.length > 0) {
+    stderr(`${formatMissing(missing)}\n`);
+    return 1;
+  }
+
+  const { url: baseUrl, email, pat } = resolved;
 
   const projectKey = positionals[0];
   const title = positionals[1];
@@ -150,6 +181,21 @@ export async function main(argv, deps = {}) {
   }
 
   return 0;
+}
+
+async function runSetup({ existing, prompt, stdout, stderr, cwd, env, runGit }) {
+  try {
+    await runWizard({ existing, ask: prompt, output: stdout, cwd, env, runGit });
+    stdout('Configuration saved to git config.\n');
+    return 0;
+  } catch (error) {
+    stderr(`${error instanceof Error ? error.message : String(error)}\n`);
+    return 1;
+  }
+}
+
+function isSetup(configure, positionals) {
+  return configure || (positionals.length === 1 && positionals[0] === 'setup');
 }
 
 function defaultExecGit(args) {
