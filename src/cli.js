@@ -112,7 +112,12 @@ export async function main(argv, deps = {}) {
   }
 
   if (positionals.length < 2) {
-    stderr(`${USAGE_MESSAGE}\n`);
+    const missing = missingRequired(config);
+    let message = `${USAGE_MESSAGE}\n`;
+    if (missing.length > 0) {
+      message += "Run 'git-jira-fast-ticket setup' to configure Jira credentials.\n";
+    }
+    stderr(message);
     return 1;
   }
 
