@@ -3,7 +3,7 @@
 [![CI](https://github.com/tiriana/git-jira-fast-ticket/actions/workflows/ci.yml/badge.svg)](https://github.com/tiriana/git-jira-fast-ticket/actions/workflows/ci.yml)
 [![CI and Release](https://github.com/tiriana/git-jira-fast-ticket/actions/workflows/release.yml/badge.svg)](https://github.com/tiriana/git-jira-fast-ticket/actions/workflows/release.yml)
 
-Create a Jira work item and immediately switch to a Git branch named after it.
+Create a Jira ticket from the command line and switch to a Git branch named after it.
 
 ```console
 $ git jira-fast-ticket PAY "Fix the checkout redirect"
