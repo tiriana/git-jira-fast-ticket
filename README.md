@@ -25,6 +25,8 @@ git jira-fast-ticket PAY "Fix the checkout redirect" # from inside any Git repos
 
 `git jira-fast-ticket -h` shows what is configured and where each value came from.
 
+To see the whole flow before you have a token, add `--dry-run`: it prints the request it would send and creates the branch, without contacting Jira.
+
 ## API token
 
 Create one at <https://id.atlassian.com/manage-profile/security/api-tokens> (Atlassian profile → **Security** → **API tokens**) and paste it into the wizard; it is read without echoing and never printed. Use the email you sign in to Jira with, and your site root as the URL, for example `https://your-domain.atlassian.net`.
@@ -58,6 +60,7 @@ git jira-fast-ticket <PROJECT_KEY> <TITLE> [DESCRIPTION] [OPTIONS]
 | Option | Effect |
 | --- | --- |
 | `-x`, `--no-checkout` | Create the ticket but do not create or switch branches |
+| `-n`, `--dry-run` | Print the request that would be sent and create the branch, without contacting Jira |
 | `--configure` | Run the setup wizard, as `setup` does |
 | `-v`, `--version` | Print the version |
 | `-h`, `--help` | Print help and the configuration status |
