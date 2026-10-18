@@ -2,22 +2,24 @@
   "name": "git-jira-fast-ticket",
   "version": "2.3.0",
   "type": "module",
-  "description": "Streamline your workflow with this CLI tool that creates Jira tickets and automatically switches to a new Git branch named after the ticket. Perfect for developers using Git and Jira for project management on Unix-like systems.",
+  "description": "Create a Jira ticket from the command line and switch to a Git branch named after it.",
   "keywords": [
     "jira",
+    "jira-integration",
+    "jira-rest-api",
+    "atlassian",
     "git",
+    "git-branch",
     "cli",
+    "command-line-tool",
     "automation",
-    "project-management",
     "workflow",
     "productivity",
+    "issue-tracker",
     "ticket-creation",
     "branch-management",
-    "development-tools",
-    "nodejs",
-    "unix",
-    "linux",
-    "macos"
+    "developer-tools",
+    "nodejs"
   ],
   "bin": {
     "git-jira-fast-ticket": "./bin/git-jira-fast-ticket.js"
