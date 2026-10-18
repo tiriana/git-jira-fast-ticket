@@ -43,6 +43,7 @@ describe('git-jira-fast-ticket CLI (end to end)', function () {
   });
 
   after(async () => {
+    stub.closeAllConnections();
     await new Promise((resolve) => stub.close(resolve));
     await rm(root, { recursive: true, force: true });
   });

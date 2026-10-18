@@ -82,6 +82,7 @@ describe('createIssue', () => {
   });
 
   after(async () => {
+    server.closeAllConnections();
     await new Promise((resolve) => server.close(resolve));
   });
 
