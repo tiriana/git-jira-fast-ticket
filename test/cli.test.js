@@ -10,6 +10,7 @@ describe('parseArgs', () => {
       version: false,
       noCheckout: true,
       configure: false,
+      dryRun: false,
       positionals: ['PROJ', 'A title'],
     });
   });
@@ -20,6 +21,7 @@ describe('parseArgs', () => {
       version: false,
       noCheckout: true,
       configure: false,
+      dryRun: false,
       positionals: ['PROJ', 'A title'],
     });
   });
@@ -30,6 +32,7 @@ describe('parseArgs', () => {
       version: false,
       noCheckout: false,
       configure: false,
+      dryRun: false,
       positionals: ['PROJ', 'A title', 'A description'],
     });
   });
@@ -40,6 +43,7 @@ describe('parseArgs', () => {
       version: false,
       noCheckout: false,
       configure: false,
+      dryRun: false,
       positionals: ['--version', '-x'],
     });
   });
@@ -50,6 +54,7 @@ describe('parseArgs', () => {
       version: false,
       noCheckout: false,
       configure: false,
+      dryRun: false,
       positionals: ['--unknown', 'PROJ'],
     });
   });
@@ -60,6 +65,7 @@ describe('parseArgs', () => {
       version: true,
       noCheckout: true,
       configure: false,
+      dryRun: false,
       positionals: ['PROJ', 'A title'],
     });
   });
@@ -70,8 +76,21 @@ describe('parseArgs', () => {
       version: false,
       noCheckout: false,
       configure: true,
+      dryRun: false,
       positionals: [],
     });
+  });
+
+  it('recognizes -n and --dry-run without treating them as positionals', () => {
+    assert.deepEqual(parseArgs(['-n', 'PROJ', 'A title']), {
+      help: false,
+      version: false,
+      noCheckout: false,
+      configure: false,
+      dryRun: true,
+      positionals: ['PROJ', 'A title'],
+    });
+    assert.equal(parseArgs(['--dry-run', 'PROJ']).dryRun, true);
   });
 });
 

@@ -304,6 +304,86 @@ describe('git-jira-fast-ticket CLI (end to end)', () => {
     assert.ok(!result.stderr.includes('Full response'), result.stderr);
   });
 
+  it('prints the request without contacting Jira when the configuration is complete', async () => {
+    const repo = await makeRepo();
+
+    const result = await run('node', [entry, 'PAY', 'Add login page', '--dry-run'], {
+      cwd: repo,
+      env: env(),
+    });
+
+    assert.equal(result.code, 0, result.stderr);
+    assert.match(result.stdout, /\[dry run\] no request was sent and no ticket was created\./);
+    assert.match(result.stdout, new RegExp(`\\[dry run\\] POST ${jiraUrl}/rest/api/3/issue`));
+    assert.match(result.stdout, /\[dry run\] {3}Authorization: Basic <redacted>/);
+    assert.match(result.stdout, /"summary": "Add login page"/);
+    assert.match(result.stdout, /"name": "Task"/);
+    assert.ok(!result.stdout.includes('secret'), result.stdout);
+    assert.equal(lastRequest, undefined, 'the stub must not be contacted');
+
+    const current = (await git(['rev-parse', '--abbrev-ref', 'HEAD'], repo)).stdout.trim();
+    assert.equal(current, 'PAY-DRYRUN-Add-login-page');
+  });
+
+  it('runs with no configuration at all and reports what is unset', async () => {
+    const repo = await makeRepo();
+    const incomplete = env();
+    delete incomplete.JIRA_URL;
+    delete incomplete.JIRA_EMAIL;
+    delete incomplete.JIRA_PAT;
+
+    const result = await run('node', [entry, 'PAY', 'No credentials', '--dry-run'], {
+      cwd: repo,
+      env: incomplete,
+    });
+
+    assert.equal(result.code, 0, result.stderr);
+    assert.match(result.stdout, /\[dry run\] not configured: JIRA_URL, JIRA_EMAIL, JIRA_PAT/);
+    assert.match(result.stdout, /\[dry run\] POST <JIRA_URL not set>\/rest\/api\/3\/issue/);
+    assert.equal(lastRequest, undefined, 'the stub must not be contacted');
+
+    const current = (await git(['rev-parse', '--abbrev-ref', 'HEAD'], repo)).stdout.trim();
+    assert.equal(current, 'PAY-DRYRUN-No-credentials');
+  });
+
+  it('prints exactly the payload the real request sends', async () => {
+    const issues = { JIRA_ISSUE_TYPE: 'Bug' };
+    const realRepo = await makeRepo();
+    const real = await run('node', [entry, 'ABC', 'Same payload'], {
+      cwd: realRepo,
+      env: env(issues),
+    });
+    assert.equal(real.code, 0, real.stderr);
+    const sent = lastRequest.body;
+
+    const dryRepo = await makeRepo();
+    const dry = await run('node', [entry, 'ABC', 'Same payload', '--dry-run'], {
+      cwd: dryRepo,
+      env: env(issues),
+    });
+    assert.equal(dry.code, 0, dry.stderr);
+
+    const printed = dry.stdout.slice(dry.stdout.indexOf('{'), dry.stdout.lastIndexOf('}') + 1);
+    assert.deepEqual(JSON.parse(printed), JSON.parse(sent));
+  });
+
+  it('creates no branch with --dry-run and --no-checkout', async () => {
+    const repo = await makeRepo();
+    const initial = (await git(['rev-parse', '--abbrev-ref', 'HEAD'], repo)).stdout.trim();
+
+    const result = await run('node', [entry, '-n', '-x', 'PAY', 'No branch'], {
+      cwd: repo,
+      env: env(),
+    });
+
+    assert.equal(result.code, 0, result.stderr);
+    assert.match(result.stdout, /\[dry run\] branch not created; it would be "PAY-DRYRUN-No-branch"/);
+    assert.equal(lastRequest, undefined, 'the stub must not be contacted');
+
+    const current = (await git(['rev-parse', '--abbrev-ref', 'HEAD'], repo)).stdout.trim();
+    assert.equal(current, initial);
+  });
+
   it('points at the setup command when called with no arguments and no configuration', async () => {
     const repo = await makeRepo();
     const incomplete = env();
