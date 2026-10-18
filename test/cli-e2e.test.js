@@ -51,6 +51,7 @@ describe('git-jira-fast-ticket CLI (end to end)', () => {
     return {
       HOME: home,
       XDG_CONFIG_HOME: configHome,
+      GIT_CONFIG_NOSYSTEM: '1',
       PATH: process.env.PATH,
       JIRA_URL: jiraUrl,
       JIRA_EMAIL: 'dev@example.com',
@@ -122,7 +123,7 @@ describe('git-jira-fast-ticket CLI (end to end)', () => {
     assert.match(result.stdout, /Usage: git-jira <PROJECT_KEY> <TITLE> \[DESCRIPTION\] \[OPTIONS\]/);
   });
 
-  it('fails when the Jira environment variables are missing', async () => {
+  it('fails when required configuration is missing everywhere', async () => {
     const repo = await makeRepo();
     const incomplete = env();
     delete incomplete.JIRA_URL;
@@ -132,10 +133,36 @@ describe('git-jira-fast-ticket CLI (end to end)', () => {
     const result = await run('node', [entry, 'ABC', 'A title'], { cwd: repo, env: incomplete });
 
     assert.notEqual(result.code, 0);
-    assert.match(
-      result.stderr,
-      /Please set the JIRA_URL, JIRA_EMAIL, and JIRA_PAT environment variables\./,
-    );
+    assert.match(result.stderr, /Missing required configuration:/);
+    assert.match(result.stderr, /JIRA_URL/);
+    assert.match(result.stderr, /JIRA_EMAIL/);
+    assert.match(result.stderr, /JIRA_PAT/);
+    assert.match(result.stderr, /git config --global jira-fast-ticket\.url <value>/);
+    assert.match(result.stderr, /git config --global jira-fast-ticket\.email <value>/);
+    assert.match(result.stderr, /git config --global jira-fast-ticket\.token <value>/);
+  });
+
+  it('reads Jira credentials from the repository git config', async () => {
+    const repo = await makeRepo();
+    await git(['config', '--local', 'jira-fast-ticket.url', jiraUrl], repo);
+    await git(['config', '--local', 'jira-fast-ticket.email', 'dev@example.com'], repo);
+    await git(['config', '--local', 'jira-fast-ticket.token', 'secret'], repo);
+
+    const configuredEnv = env();
+    delete configuredEnv.JIRA_URL;
+    delete configuredEnv.JIRA_EMAIL;
+    delete configuredEnv.JIRA_PAT;
+
+    const result = await run('node', [entry, 'ABC', 'Config branch'], {
+      cwd: repo,
+      env: configuredEnv,
+    });
+
+    assert.equal(result.code, 0, result.stderr);
+    assert.match(result.stdout, /Jira ticket created: ABC-123/);
+
+    const current = (await git(['rev-parse', '--abbrev-ref', 'HEAD'], repo)).stdout.trim();
+    assert.equal(current, 'ABC-123-Config-branch');
   });
 
   it('normalizes a trailing slash in the Jira base URL', async () => {

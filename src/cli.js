@@ -1,10 +1,9 @@
 import { execFile } from 'node:child_process';
 
+import { formatMissing, missingRequired, resolveConfig } from './config.js';
 import { createIssue, JiraError, normalizeBaseUrl } from './jira.js';
 import { getVersion } from './version.js';
 
-const MISSING_ENV_MESSAGE =
-  'Please set the JIRA_URL, JIRA_EMAIL, and JIRA_PAT environment variables.';
 const USAGE_MESSAGE =
   'Usage: git-jira <PROJECT_KEY> <TITLE> [DESCRIPTION] [--no-checkout | -x]';
 const ISSUE_TYPE = 'Task';
@@ -71,8 +70,10 @@ export function helpText() {
 export async function main(argv, deps = {}) {
   const {
     env = process.env,
+    cwd = process.cwd(),
     fetchImpl = globalThis.fetch,
     execGit = defaultExecGit,
+    runGit,
     stdout = write(process.stdout),
     stderr = write(process.stderr),
   } = deps;
@@ -89,11 +90,14 @@ export async function main(argv, deps = {}) {
     return 0;
   }
 
-  const { JIRA_URL: baseUrl, JIRA_EMAIL: email, JIRA_PAT: pat } = env;
-  if (!baseUrl || !email || !pat) {
-    stderr(`${MISSING_ENV_MESSAGE}\n`);
+  const config = await resolveConfig({ env, cwd, runGit });
+  const missing = missingRequired(config);
+  if (missing.length > 0) {
+    stderr(`${formatMissing(missing)}\n`);
     return 1;
   }
+
+  const { url: baseUrl, email, pat } = config;
 
   if (positionals.length < 2) {
     stderr(`${USAGE_MESSAGE}\n`);
