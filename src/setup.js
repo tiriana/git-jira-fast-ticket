@@ -102,14 +102,19 @@ export async function runWizard({
 }
 
 function askSecret(question, { input, output, nextQueuedLine }) {
-  output.write(question);
-
   if (!input.isTTY) {
+    output.write(question);
     return nextQueuedLine().then((line) => line.trim());
   }
 
   return new Promise((resolve) => {
     input.setRawMode(true);
+    // readline.close() leaves stdin paused, and a 'data' listener added to a
+    // stream in that state never receives anything.
+    input.resume();
+    // Raw mode has to be on before the prompt is visible, or input that arrives
+    // immediately after it — a pasted token — is echoed by the terminal.
+    output.write(question);
     let value = '';
 
     const onData = (chunk) => {
