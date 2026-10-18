@@ -1,6 +1,7 @@
 {
   "name": "git-jira-fast-ticket",
   "version": "2.1.7",
+  "type": "module",
   "description": "Streamline your workflow with this CLI tool that creates Jira tickets and automatically switches to a new Git branch named after the ticket. Perfect for developers using Git and Jira for project management on Unix-like systems.",
   "keywords": [
     "jira",
@@ -13,17 +14,20 @@
     "ticket-creation",
     "branch-management",
     "development-tools",
-    "bash-script",
+    "nodejs",
     "unix",
     "linux",
     "macos"
   ],
   "bin": {
-    "git-jira-fast-ticket": "./bin/git-jira-fast-ticket.sh"
+    "git-jira-fast-ticket": "./bin/git-jira-fast-ticket.js"
   },
   "scripts": {
-    "prepare": "chmod +x bin/git-jira-fast-ticket.sh",
-    "test": "mocha ./tests.js --require choma"
+    "prepare": "chmod +x bin/git-jira-fast-ticket.js",
+    "test": "mocha \"test/**/*.test.js\" --require choma"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "author": {
     "name": "Radomir Wojtera",
