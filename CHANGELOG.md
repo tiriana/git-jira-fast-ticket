@@ -1,3 +1,18 @@
+## [2.2.0](https://github.com/tiriana/git-jira-fast-ticket/compare/v2.1.7...v2.2.0) (2026-10-18)
+
+### Features
+
+* **cli:** replace the Bash implementation with a Node CLI ([851d1c3](https://github.com/tiriana/git-jira-fast-ticket/commit/851d1c337fd8031c4980b1f33cca202ce3376ff3))
+* **cli:** report the cause of Jira failures, allow an issue type ([e0ae69b](https://github.com/tiriana/git-jira-fast-ticket/commit/e0ae69bd3e288d6ab94e3b73d39865b0c3896acd))
+* **config:** resolve settings from git config with an environment override ([69ab7a8](https://github.com/tiriana/git-jira-fast-ticket/commit/69ab7a8b519d3cbca95133a6196902a43e2746f1))
+* **setup:** guide first-time configuration instead of documenting it ([b8375cf](https://github.com/tiriana/git-jira-fast-ticket/commit/b8375cfb1cacf17e9d31f3063a0c92445fca6f00))
+
+### Bug Fixes
+
+* **setup:** stop the token prompt stalling and echoing on a terminal ([f0ff575](https://github.com/tiriana/git-jira-fast-ticket/commit/f0ff575a63525ad87f97765def7d7a797ee03b57))
+* **setup:** stop the token prompt stalling and echoing on a terminal ([#45](https://github.com/tiriana/git-jira-fast-ticket/issues/45)) ([e42b768](https://github.com/tiriana/git-jira-fast-ticket/commit/e42b768f9161eb3a0a80ff2e91d30e48c24244f3)), closes [#33](https://github.com/tiriana/git-jira-fast-ticket/issues/33)
+* **test:** close stub server connections deterministically ([24df0cb](https://github.com/tiriana/git-jira-fast-ticket/commit/24df0cb9dc57d3b492c4c0a75a4e7f45119e7a09))
+
 ## [2.1.7](https://github.com/tiriana/git-jira-fast-ticket/compare/v2.1.6...v2.1.7) (2025-03-13)
 
 ### Bug Fixes
