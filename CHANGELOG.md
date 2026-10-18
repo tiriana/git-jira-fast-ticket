@@ -1,3 +1,10 @@
+## [2.3.0](https://github.com/tiriana/git-jira-fast-ticket/compare/v2.2.0...v2.3.0) (2026-10-18)
+
+### Features
+
+* **cli:** point at setup when called without arguments and configuration ([d0e4b2d](https://github.com/tiriana/git-jira-fast-ticket/commit/d0e4b2db674712ea5c158abe474edd57a19c22a3))
+* **cli:** point at setup when called without arguments and configuration ([#51](https://github.com/tiriana/git-jira-fast-ticket/issues/51)) ([641ba72](https://github.com/tiriana/git-jira-fast-ticket/commit/641ba721bd8f414f2c0c9e526a28877aded31dcf))
+
 ## [2.2.0](https://github.com/tiriana/git-jira-fast-ticket/compare/v2.1.7...v2.2.0) (2026-10-18)
 
 ### Features
