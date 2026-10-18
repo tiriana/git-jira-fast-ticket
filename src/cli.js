@@ -7,7 +7,6 @@ import { getVersion } from './version.js';
 
 const USAGE_MESSAGE =
   'Usage: git-jira-fast-ticket <PROJECT_KEY> <TITLE> [DESCRIPTION] [--no-checkout | -x]';
-const ISSUE_TYPE = 'Task';
 
 export function parseArgs(argv) {
   const result = { help: false, version: false, noCheckout: false, configure: false, positionals: [] };
@@ -68,6 +67,7 @@ export function helpText(config) {
     '  JIRA_URL              The Jira base URL.',
     '  JIRA_EMAIL            Your Jira email.',
     '  JIRA_PAT              Your Jira Personal Access Token.',
+    '  JIRA_ISSUE_TYPE       The Jira issue type to create. Optional, defaults to Task.',
     '',
     'Configuration:',
     ...configStatus(config).map((line) => `  ${line}`),
@@ -133,7 +133,7 @@ export async function main(argv, deps = {}) {
     return 1;
   }
 
-  const { url: baseUrl, email, pat } = resolved;
+  const { url: baseUrl, email, pat, issueType } = resolved;
 
   const projectKey = positionals[0];
   const title = positionals[1];
@@ -148,7 +148,7 @@ export async function main(argv, deps = {}) {
       projectKey,
       title,
       description,
-      issueType: ISSUE_TYPE,
+      issueType,
       fetchImpl,
     }));
   } catch (error) {
@@ -156,8 +156,8 @@ export async function main(argv, deps = {}) {
       throw error;
     }
     stderr(`Error creating Jira ticket: ${error.message}\n`);
-    if (error.body) {
-      stderr(`Full response from Jira: ${error.body}\n`);
+    if (error.hint) {
+      stderr(`${error.hint}\n`);
     }
     return 1;
   }

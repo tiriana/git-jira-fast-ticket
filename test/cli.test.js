@@ -113,7 +113,13 @@ describe('helpText', () => {
     url: 'https://example.atlassian.net',
     email: 'dev@example.com',
     pat: 'super-secret-pat',
-    sources: { JIRA_URL: 'env', JIRA_EMAIL: 'local', JIRA_PAT: 'global' },
+    issueType: 'Task',
+    sources: {
+      JIRA_URL: 'env',
+      JIRA_EMAIL: 'local',
+      JIRA_PAT: 'global',
+      JIRA_ISSUE_TYPE: 'default',
+    },
   };
 
   it('names the command users actually type', () => {
@@ -135,6 +141,15 @@ describe('helpText', () => {
     assert.match(text, /JIRA_URL set \(environment\)/);
     assert.match(text, /JIRA_EMAIL set \(git config, this repository\)/);
     assert.match(text, /JIRA_PAT set \(git config, all repositories\)/);
+  });
+
+  it('documents the optional issue type and its Task default', () => {
+    const text = helpText(config);
+    assert.match(
+      text,
+      /JIRA_ISSUE_TYPE\s+The Jira issue type to create\. Optional, defaults to Task\./,
+    );
+    assert.match(text, /JIRA_ISSUE_TYPE set \(built-in default\)/);
   });
 
   it('never prints the PAT value', () => {

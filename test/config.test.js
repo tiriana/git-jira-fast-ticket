@@ -155,6 +155,57 @@ describe('resolveConfig', () => {
       assert.equal(config.sources.JIRA_URL, undefined);
     });
   });
+
+  it('reads the issue type from the environment', async () => {
+    await withRepo(async ({ repo, env }) => {
+      const config = await resolveConfig({ env: { ...env, JIRA_ISSUE_TYPE: 'Bug' }, cwd: repo });
+
+      assert.equal(config.issueType, 'Bug');
+      assert.equal(config.sources.JIRA_ISSUE_TYPE, 'env');
+    });
+  });
+
+  it('reads the issue type from the repository-local git config', async () => {
+    await withRepo(async ({ repo, env }) => {
+      await setLocal(repo, env, 'jira-fast-ticket.issueType', 'Story');
+
+      const config = await resolveConfig({ env, cwd: repo });
+
+      assert.equal(config.issueType, 'Story');
+      assert.equal(config.sources.JIRA_ISSUE_TYPE, 'local');
+    });
+  });
+
+  it('reads the issue type from the global git config', async () => {
+    await withRepo(async ({ repo, env }) => {
+      await setGlobal(env, 'jira-fast-ticket.issueType', 'Epic');
+
+      const config = await resolveConfig({ env, cwd: repo });
+
+      assert.equal(config.issueType, 'Epic');
+      assert.equal(config.sources.JIRA_ISSUE_TYPE, 'global');
+    });
+  });
+
+  it('lets the environment win over the repository issue type', async () => {
+    await withRepo(async ({ repo, env }) => {
+      await setLocal(repo, env, 'jira-fast-ticket.issueType', 'Story');
+
+      const config = await resolveConfig({ env: { ...env, JIRA_ISSUE_TYPE: 'Bug' }, cwd: repo });
+
+      assert.equal(config.issueType, 'Bug');
+      assert.equal(config.sources.JIRA_ISSUE_TYPE, 'env');
+    });
+  });
+
+  it('defaults the issue type to Task when nothing is configured', async () => {
+    await withRepo(async ({ repo, env }) => {
+      const config = await resolveConfig({ env, cwd: repo });
+
+      assert.equal(config.issueType, 'Task');
+      assert.equal(config.sources.JIRA_ISSUE_TYPE, 'default');
+    });
+  });
 });
 
 describe('missingRequired', () => {
@@ -172,6 +223,19 @@ describe('missingRequired', () => {
     };
 
     assert.deepEqual(missingRequired(config), ['JIRA_URL', 'JIRA_EMAIL', 'JIRA_PAT']);
+  });
+
+  it('never reports the optional issue type', () => {
+    const config = {
+      sources: {
+        JIRA_URL: 'env',
+        JIRA_EMAIL: 'env',
+        JIRA_PAT: 'env',
+        JIRA_ISSUE_TYPE: undefined,
+      },
+    };
+
+    assert.deepEqual(missingRequired(config), []);
   });
 });
 

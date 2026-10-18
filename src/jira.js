@@ -12,6 +12,26 @@ export function normalizeBaseUrl(baseUrl) {
   return baseUrl.replace(/\/+$/, '');
 }
 
+const STATUS_HINTS = {
+  400: 'Check the summary and description being sent, and confirm the project accepts the configured issue type.',
+  401: 'Check that JIRA_EMAIL and JIRA_PAT are correct.',
+  403: 'Check that JIRA_EMAIL and JIRA_PAT are correct.',
+  404: 'Check that JIRA_URL is correct and that the project key exists.',
+  429: 'Jira is rate limiting requests; retry in a moment.',
+};
+const SERVER_HINT = 'Jira reported a server-side error; retry shortly.';
+const NETWORK_HINT = 'Check that JIRA_URL is reachable and that this machine is online.';
+
+function statusHint(status) {
+  if (STATUS_HINTS[status]) {
+    return STATUS_HINTS[status];
+  }
+  if (status >= 500) {
+    return SERVER_HINT;
+  }
+  return undefined;
+}
+
 export function apiUrl(baseUrl) {
   return `${normalizeBaseUrl(baseUrl)}/rest/api/3/issue`;
 }
@@ -59,7 +79,7 @@ export async function createIssue({
       body: JSON.stringify(buildPayload({ projectKey, title, description, issueType })),
     });
   } catch (error) {
-    throw new JiraError(errorMessage(error));
+    throw new JiraError(errorMessage(error), { hint: NETWORK_HINT });
   }
 
   if (!response.ok) {
@@ -67,6 +87,7 @@ export async function createIssue({
     throw new JiraError(responseMessage(body, response.status), {
       status: response.status,
       body,
+      hint: statusHint(response.status),
     });
   }
 

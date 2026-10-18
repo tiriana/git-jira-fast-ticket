@@ -183,6 +183,96 @@ describe('createIssue', () => {
     );
   });
 
+  it('hints at the credentials on 401 and 403', async () => {
+    for (const status of [401, 403]) {
+      handler = (req, res) => {
+        res.writeHead(status);
+        res.end('denied');
+      };
+
+      await assert.rejects(
+        () => createIssue(params()),
+        (error) => {
+          assert.ok(error instanceof JiraError);
+          assert.match(error.hint, /JIRA_EMAIL/);
+          assert.match(error.hint, /JIRA_PAT/);
+          return true;
+        },
+      );
+    }
+  });
+
+  it('hints at the URL and project key on 404', async () => {
+    handler = (req, res) => {
+      res.writeHead(404);
+      res.end('not found');
+    };
+
+    await assert.rejects(
+      () => createIssue(params()),
+      (error) => {
+        assert.ok(error instanceof JiraError);
+        assert.match(error.hint, /JIRA_URL/);
+        assert.match(error.hint, /project key/);
+        return true;
+      },
+    );
+  });
+
+  it('hints at the submitted fields on 400', async () => {
+    handler = (req, res) => {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ errors: { summary: 'is required' } }));
+    };
+
+    await assert.rejects(
+      () => createIssue(params()),
+      (error) => {
+        assert.ok(error instanceof JiraError);
+        assert.match(error.hint, /summary/);
+        assert.match(error.hint, /description/);
+        return true;
+      },
+    );
+  });
+
+  it('suggests retrying on 429', async () => {
+    handler = (req, res) => {
+      res.writeHead(429);
+      res.end('slow down');
+    };
+
+    await assert.rejects(
+      () => createIssue(params()),
+      (error) => {
+        assert.ok(error instanceof JiraError);
+        assert.match(error.hint, /retry/i);
+        return true;
+      },
+    );
+  });
+
+  it('suggests retrying on a 5xx response', async () => {
+    handler = (req, res) => {
+      res.writeHead(503);
+      res.end('unavailable');
+    };
+
+    await assert.rejects(
+      () => createIssue(params()),
+      (error) => {
+        assert.ok(error instanceof JiraError);
+        assert.match(error.hint, /retry/i);
+        return true;
+      },
+    );
+  });
+
+  it('successful responses carry no hint', async () => {
+    const result = await createIssue(params());
+    assert.equal(result.hint, undefined);
+  });
+
   it('wraps a network failure in a JiraError without a status', async () => {
     const failingFetch = () => Promise.reject(new Error('getaddrinfo ENOTFOUND'));
 
@@ -192,6 +282,8 @@ describe('createIssue', () => {
         assert.ok(error instanceof JiraError);
         assert.match(error.message, /ENOTFOUND/);
         assert.equal(error.status, undefined);
+        assert.match(error.hint, /JIRA_URL/);
+        assert.match(error.hint, /online/);
         return true;
       },
     );

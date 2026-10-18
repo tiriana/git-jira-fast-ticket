@@ -7,6 +7,7 @@ const SOURCE_LABELS = {
   env: 'environment',
   local: 'git config, this repository',
   global: 'git config, all repositories',
+  default: 'built-in default',
 };
 
 export function configStatus(config) {

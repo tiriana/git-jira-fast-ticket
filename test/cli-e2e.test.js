@@ -28,6 +28,13 @@ describe('git-jira-fast-ticket CLI (end to end)', () => {
   let configHome;
   let stub;
   let jiraUrl;
+  let lastRequest;
+  let respond;
+
+  function defaultRespond(_req, res) {
+    res.writeHead(201, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ key: 'ABC-123' }));
+  }
 
   before(async () => {
     root = await mkdtemp(join(tmpdir(), 'gjt-e2e-'));
@@ -37,11 +44,24 @@ describe('git-jira-fast-ticket CLI (end to end)', () => {
     await mkdir(configHome, { recursive: true });
 
     stub = http.createServer((req, res) => {
-      res.writeHead(201, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ key: 'ABC-123' }));
+      const chunks = [];
+      req.on('data', (chunk) => chunks.push(chunk));
+      req.on('end', () => {
+        lastRequest = {
+          method: req.method,
+          url: req.url,
+          body: Buffer.concat(chunks).toString('utf8'),
+        };
+        respond(req, res);
+      });
     });
     await new Promise((resolve) => stub.listen(0, '127.0.0.1', resolve));
     jiraUrl = `http://127.0.0.1:${stub.address().port}`;
+  });
+
+  beforeEach(() => {
+    lastRequest = undefined;
+    respond = defaultRespond;
   });
 
   after(async () => {
@@ -241,5 +261,46 @@ describe('git-jira-fast-ticket CLI (end to end)', () => {
     assert.equal(result.code, 0, result.stderr);
     assert.ok(result.stdout.includes(`${jiraUrl}/browse/ABC-123`), result.stdout);
     assert.ok(!result.stdout.includes(`${jiraUrl}//browse`), result.stdout);
+  });
+
+  it('sends the configured issue type', async () => {
+    const repo = await makeRepo();
+
+    const result = await run('node', [entry, 'ABC', 'Bug report'], {
+      cwd: repo,
+      env: env({ JIRA_ISSUE_TYPE: 'Bug' }),
+    });
+
+    assert.equal(result.code, 0, result.stderr);
+
+    const payload = JSON.parse(lastRequest.body);
+    assert.equal(payload.fields.issuetype.name, 'Bug');
+  });
+
+  it('defaults the issue type to Task', async () => {
+    const repo = await makeRepo();
+
+    const result = await run('node', [entry, 'ABC', 'Default type'], { cwd: repo, env: env() });
+
+    assert.equal(result.code, 0, result.stderr);
+
+    const payload = JSON.parse(lastRequest.body);
+    assert.equal(payload.fields.issuetype.name, 'Task');
+  });
+
+  it('reports rejected credentials without dumping the raw response body', async () => {
+    const repo = await makeRepo();
+    respond = (_req, res) => {
+      res.writeHead(401, { 'Content-Type': 'text/html' });
+      res.end('<html>proxy denied</html>');
+    };
+
+    const result = await run('node', [entry, 'ABC', 'Denied'], { cwd: repo, env: env() });
+
+    assert.notEqual(result.code, 0);
+    assert.match(result.stderr, /JIRA_EMAIL/);
+    assert.match(result.stderr, /JIRA_PAT/);
+    assert.ok(!result.stderr.includes('proxy denied'), result.stderr);
+    assert.ok(!result.stderr.includes('Full response'), result.stderr);
   });
 });
