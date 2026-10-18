@@ -69,9 +69,17 @@ export async function runWizard({
   cwd = process.cwd(),
   env = process.env,
   runGit = defaultRunGit,
+  backend,
 }) {
   const prompt = ask ?? createPrompt({ input: process.stdin, output: process.stdout });
   const emit = output ?? ((text) => process.stdout.write(text));
+
+  if (backend === 'acli') {
+    emit('Atlassian CLI (acli) is installed and authenticated.\n');
+    emit('No Jira token is needed; work items are created with acli.\n');
+    emit('Set JIRA_BACKEND=api to force the REST API instead.\n');
+    return { backend };
+  }
 
   emit('Jira configuration\n');
   emit(

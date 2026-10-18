@@ -1,5 +1,6 @@
 import { execFile } from 'node:child_process';
 
+import { createIssueWithAcli, defaultRunAcli, detectAcli, selectBackend } from './acli.js';
 import { formatMissing, missingRequired, resolveConfig } from './config.js';
 import { createIssue, JiraError, normalizeBaseUrl } from './jira.js';
 import { configStatus, createPrompt, runWizard } from './setup.js';
@@ -68,14 +69,25 @@ export function helpText(config) {
     '  JIRA_EMAIL            Your Jira email.',
     '  JIRA_PAT              Your Jira Personal Access Token.',
     '  JIRA_ISSUE_TYPE       The Jira issue type to create. Optional, defaults to Task.',
+    '  JIRA_BACKEND          Force the backend: "acli" or "api". Optional, defaults to automatic.',
     '',
     'Configuration:',
     ...configStatus(config).map((line) => `  ${line}`),
+    '',
+    'Backend:',
+    `  ${backendStatus(config)}`,
     '',
     'Set a value with: git config --global jira-fast-ticket.<url|email|token> <value>',
     'Run "git-jira-fast-ticket setup" for a guided setup.',
     '',
   ].join('\n');
+}
+
+function backendStatus(config) {
+  if (config.backend) {
+    return `forced to "${config.backend}" by JIRA_BACKEND or jira-fast-ticket.backend.`;
+  }
+  return 'automatic: uses acli when it is authenticated and no JIRA_PAT is configured, otherwise the REST API.';
 }
 
 export async function main(argv, deps = {}) {
@@ -86,6 +98,8 @@ export async function main(argv, deps = {}) {
     fetchImpl = globalThis.fetch,
     execGit = defaultExecGit,
     runGit,
+    runAcli = defaultRunAcli,
+    detect = (options) => detectAcli({ runAcli, ...options }),
     ask,
     stdout = write(process.stdout),
     stderr = write(process.stderr),
@@ -107,8 +121,20 @@ export async function main(argv, deps = {}) {
   const prompt = ask ?? createPrompt({ input: stdin, output: process.stdout });
   const existing = { JIRA_URL: config.url, JIRA_EMAIL: config.email, JIRA_PAT: config.pat };
 
+  let backend;
+  try {
+    backend = await selectBackend({
+      backend: config.backend,
+      pat: config.pat,
+      detect: () => detect({ env }),
+    });
+  } catch (error) {
+    stderr(`${error instanceof Error ? error.message : String(error)}\n`);
+    return 1;
+  }
+
   if (isSetup(configure, positionals)) {
-    return runSetup({ existing, prompt, stdout, stderr, cwd, env, runGit });
+    return runSetup({ existing, prompt, stdout, stderr, cwd, env, runGit, backend });
   }
 
   if (positionals.length < 2) {
@@ -117,9 +143,14 @@ export async function main(argv, deps = {}) {
   }
 
   let resolved = config;
-  if (missingRequired(resolved).length > 0 && stdin.isTTY && !env.CI) {
+  if (
+    backend === 'api' &&
+    missingRequired(resolved).length > 0 &&
+    stdin.isTTY &&
+    !env.CI
+  ) {
     try {
-      await runWizard({ existing, ask: prompt, output: stdout, cwd, env, runGit });
+      await runWizard({ existing, ask: prompt, output: stdout, cwd, env, runGit, backend });
       resolved = await resolveConfig({ env, cwd, runGit });
     } catch (error) {
       stderr(`${error instanceof Error ? error.message : String(error)}\n`);
@@ -127,10 +158,12 @@ export async function main(argv, deps = {}) {
     }
   }
 
-  const missing = missingRequired(resolved);
-  if (missing.length > 0) {
-    stderr(`${formatMissing(missing)}\n`);
-    return 1;
+  if (backend === 'api') {
+    const missing = missingRequired(resolved);
+    if (missing.length > 0) {
+      stderr(`${formatMissing(missing)}\n`);
+      return 1;
+    }
   }
 
   const { url: baseUrl, email, pat, issueType } = resolved;
@@ -141,29 +174,41 @@ export async function main(argv, deps = {}) {
 
   let key;
   try {
-    ({ key } = await createIssue({
-      baseUrl,
-      email,
-      pat,
-      projectKey,
-      title,
-      description,
-      issueType,
-      fetchImpl,
-    }));
-  } catch (error) {
-    if (!(error instanceof JiraError)) {
-      throw error;
+    if (backend === 'acli') {
+      ({ key } = await createIssueWithAcli({
+        projectKey,
+        title,
+        description,
+        issueType,
+        runAcli,
+        env,
+      }));
+    } else {
+      ({ key } = await createIssue({
+        baseUrl,
+        email,
+        pat,
+        projectKey,
+        title,
+        description,
+        issueType,
+        fetchImpl,
+      }));
     }
-    stderr(`Error creating Jira ticket: ${error.message}\n`);
-    if (error.hint) {
+  } catch (error) {
+    stderr(`Error creating Jira ticket: ${error instanceof Error ? error.message : String(error)}\n`);
+    if (error instanceof JiraError && error.hint) {
       stderr(`${error.hint}\n`);
     }
     return 1;
   }
 
-  const browseUrl = `${normalizeBaseUrl(baseUrl)}/browse/${key}`;
-  stdout(`Jira ticket created: ${key} - \u001b[1;34m${browseUrl}\u001b[0m\n`);
+  if (baseUrl) {
+    const browseUrl = `${normalizeBaseUrl(baseUrl)}/browse/${key}`;
+    stdout(`Jira ticket created: ${key} - \u001b[1;34m${browseUrl}\u001b[0m\n`);
+  } else {
+    stdout(`Jira ticket created: ${key}\n`);
+  }
 
   const branch = branchName(key, title);
   if (noCheckout) {
@@ -183,10 +228,12 @@ export async function main(argv, deps = {}) {
   return 0;
 }
 
-async function runSetup({ existing, prompt, stdout, stderr, cwd, env, runGit }) {
+async function runSetup({ existing, prompt, stdout, stderr, cwd, env, runGit, backend }) {
   try {
-    await runWizard({ existing, ask: prompt, output: stdout, cwd, env, runGit });
-    stdout('Configuration saved to git config.\n');
+    await runWizard({ existing, ask: prompt, output: stdout, cwd, env, runGit, backend });
+    if (backend !== 'acli') {
+      stdout('Configuration saved to git config.\n');
+    }
     return 0;
   } catch (error) {
     stderr(`${error instanceof Error ? error.message : String(error)}\n`);

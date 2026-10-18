@@ -8,6 +8,7 @@ const SETTINGS = [
   { env: 'JIRA_EMAIL', git: 'email', field: 'email', required: true },
   { env: 'JIRA_PAT', git: 'token', field: 'pat', required: true },
   { env: 'JIRA_ISSUE_TYPE', git: 'issueType', field: 'issueType', default: 'Task' },
+  { env: 'JIRA_BACKEND', git: 'backend', field: 'backend' },
 ];
 
 export function configKey(field) {
@@ -20,7 +21,14 @@ export async function resolveConfig({
   runGit = defaultRunGit,
 } = {}) {
   const localConfigPath = await resolveLocalConfigPath(cwd, env, runGit);
-  const config = { url: undefined, email: undefined, pat: undefined, issueType: undefined, sources: {} };
+  const config = {
+    url: undefined,
+    email: undefined,
+    pat: undefined,
+    issueType: undefined,
+    backend: undefined,
+    sources: {},
+  };
 
   for (const { env: envKey, git, field, default: fallback } of SETTINGS) {
     if (env[envKey] !== undefined && env[envKey] !== '') {
