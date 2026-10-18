@@ -303,4 +303,31 @@ describe('git-jira-fast-ticket CLI (end to end)', () => {
     assert.ok(!result.stderr.includes('proxy denied'), result.stderr);
     assert.ok(!result.stderr.includes('Full response'), result.stderr);
   });
+
+  it('points at the setup command when called with no arguments and no configuration', async () => {
+    const repo = await makeRepo();
+    const incomplete = env();
+    delete incomplete.JIRA_URL;
+    delete incomplete.JIRA_EMAIL;
+    delete incomplete.JIRA_PAT;
+
+    const result = await run('node', [entry], { cwd: repo, env: incomplete });
+
+    assert.notEqual(result.code, 0);
+    assert.match(result.stderr, /Usage: git-jira-fast-ticket <PROJECT_KEY> <TITLE>/);
+    assert.match(
+      result.stderr,
+      /Run 'git-jira-fast-ticket setup' to configure Jira credentials\./,
+    );
+  });
+
+  it('omits the setup hint when configuration is already present', async () => {
+    const repo = await makeRepo();
+
+    const result = await run('node', [entry], { cwd: repo, env: env() });
+
+    assert.notEqual(result.code, 0);
+    assert.match(result.stderr, /Usage: git-jira-fast-ticket <PROJECT_KEY> <TITLE>/);
+    assert.ok(!result.stderr.includes('setup'), result.stderr);
+  });
 });
