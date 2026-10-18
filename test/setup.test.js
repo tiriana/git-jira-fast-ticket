@@ -243,6 +243,42 @@ describe('runWizard', () => {
   });
 });
 
+describe('createPrompt', () => {
+  it('answers every question on a tty, including the secret one', { timeout: 5000 }, async () => {
+    const input = new PassThrough();
+    input.isTTY = true;
+    input.setRawMode = () => {};
+    const ask = createPrompt({ input, output: new PassThrough() });
+
+    const url = ask('Jira URL: ');
+    input.write('https://example.atlassian.net\n');
+    assert.equal(await url, 'https://example.atlassian.net');
+
+    const email = ask('Jira email: ');
+    input.write('dev@example.com\n');
+    assert.equal(await email, 'dev@example.com');
+
+    const token = ask('Jira Personal Access Token: ', { secret: true });
+    input.write('a-pat\n');
+    assert.equal(await token, 'a-pat');
+  });
+
+  it('enables raw mode before the token prompt is printed', async () => {
+    const events = [];
+    const input = new PassThrough();
+    input.isTTY = true;
+    input.setRawMode = (on) => events.push(`rawMode:${on}`);
+    const output = { write: (text) => events.push(`write:${text}`) };
+    const ask = createPrompt({ input, output });
+
+    const pending = ask('Jira Personal Access Token: ', { secret: true });
+    input.write('a-pat\n');
+    assert.equal(await pending, 'a-pat');
+
+    assert.deepEqual(events.slice(0, 2), ['rawMode:true', 'write:Jira Personal Access Token: ']);
+  });
+});
+
 describe('configStatus', () => {
   it('labels environment, repository, global and unset sources', () => {
     assert.deepEqual(configStatus({ sources: { JIRA_URL: 'env' } }), [
